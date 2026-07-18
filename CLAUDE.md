@@ -27,11 +27,28 @@ Archivos: `artifacts/short_telegrafo_musica.mp4` (51s) y `short_pelo_catapultas_
 cada uno con versión solo-voz `short_<n>.mp4`. El circuito quedó **formalizado en scripts reusables**
 (ya no es copy-paste de ffmpeg). Ver [[produccion-tanda-telegrafo-pelo]] para gotchas 11-13.
 
+**REPO EN GITHUB (jul 2026):** `faborubio/astilla` **privado**, remote `origin` por HTTPS (`gh`
+autenticado como faborubio). `.claude/` NO se versiona (config local). `artifacts/` gitignored
+(guiones, `titulos.txt`, wavs, mp4 quedan solo locales). Commitear/pushear cuando se pida.
+
 **CANAL: `VESTIGIOS`** (handle `@vestigios.historia`) — nicho historia/divulgación, look museo/
 documental, paleta teal+ámbar. ⚠️ NO es canal nuevo: preexistía con música IA (sin tracción) →
 reconvertido. Las 595 vistas están "contaminadas" por audiencia de música, NO son señal limpia.
 Los próximos 4-5 shorts REEDUCAN al algoritmo → 2-3 semanas de datos ruidosos, no sacar
 conclusiones de un short individual en ese tramo. Ver [[primer-short-publicado]].
+
+**📊 PRIMERA SEÑAL DE MÉTRICAS (2026-07-18, 3 shorts):** telégrafo (título-pregunta) **~1K** = el
+mejor · anticitera **747** · pelo/Cartago **222 a 11h con 74,4% de retención** y ~8% likes. Canal:
+**11 subs (+4/28d)**. Lecturas: la **retención ~74% es el número limpio y es alto** (el guion
+funciona; las vistas absolutas NO son comparables entre shorts de distinta edad); **el título-
+pregunta con brecha gana**; **0 comentarios** en los 3 = gap. Ver [[estrategia-canal-vestigios]].
+
+**ESTRATEGIA NUEVA aplicada esta sesión** (deriva de datos + checklist de 7 factores Hook/Retención/
+Duración/CTA/Constancia/Hashtags/Suscriptores): (1) **títulos-pregunta** reescritos para los 4
+pendientes en `artifacts/titulos.txt` (rec+alt+hashtags); (2) **CTA de comentario** agregado al
+cierre de los 4 guiones pendientes (`artifacts/guion_*.txt`); (3) **hashtags** por short en
+`titulos.txt`. Focos abiertos del checklist: **constancia** (grabar seguido, el factor más frágil)
+y auditar el **hook a 2s** en Studio. NO perseguir foto-realismo/GPU: el moat es guion+distribución.
 
 **El circuito de producción (formalizado en scripts jul 2026, reproducible):**
 1. Fabián graba el guion (mismo lugar sin ruido, 20-30cm del mic, si se traba repite la frase sin
@@ -57,9 +74,12 @@ conclusiones de un short individual en ese tramo. Ver [[primer-short-publicado]]
    → `short_<n>_musica.mp4`. Atribuir a **Kevin MacLeod (CC-BY)**.
 
 **Próximos pasos:**
-1. **Seguir grabando** en orden: **arquero → trepanacion → cerebro_vidrio → hormigon**.
-   Cadencia: 1 short cada 1-2 días (cuello de botella = grabar la voz, no el pipeline).
-2. **Watchear métricas** de los 3 publicados (señal aún ruidosa por la reeducación del algoritmo).
+1. **Seguir grabando** en orden: **arquero → trepanacion → cerebro_vidrio → hormigon**. Los 4 guiones
+   YA tienen CTA de cierre y sus títulos/hashtags están en `artifacts/titulos.txt` (usar al publicar).
+   Cadencia: 1 short cada 1-2 días (cuello de botella = grabar la voz, no el pipeline). Al grabar,
+   dejar ~1s de silencio antes de tocar el mouse (el recorte de cola de `limpiar_voz` así queda perfecto).
+2. **Watchear métricas** de los 3 publicados; métrica primaria = **% visto/retención** (no vistas
+   absolutas). Señal aún ruidosa por la reeducación del algoritmo.
 3. **Branding de Vestigios:** foto de perfil (emblema de engranaje) + banner. Ocultar (unlisted) los
    videos viejos de música para limpiar la señal del canal.
 4. **Deuda técnica:** (a) generalizar el retimeo (paso 7) dentro de `armar_short.py`; (b) formalizar
