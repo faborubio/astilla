@@ -1,0 +1,16 @@
+{
+  "id": "fabianskeinerrubio/astilla-talking-rec-habla-v1-s1",
+  "title": "astilla-talking-rec-habla-v1-s1",
+  "code_file": "astilla_kernel.py",
+  "language": "python",
+  "kernel_type": "script",
+  "is_private": true,
+  "enable_gpu": true,
+  "machine_shape": "NvidiaTeslaT4",
+  "enable_internet": true,
+  "dataset_sources": [
+    "fabianskeinerrubio/astilla-audio-rec-habla-v1-s1-4bb748a3"
+  ],
+  "competition_sources": [],
+  "kernel_sources": []
+}

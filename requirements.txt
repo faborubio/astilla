@@ -1,0 +1,7 @@
+# Astilla — Fase 1 (slice real). Dominio: stdlib-only (sin dependencias).
+# Infra mínima del MVP a $0:
+faster-whisper>=1.2.0   # transcripción local CPU (PuertoTranscripcion)
+# ffmpeg / ffprobe: binarios del sistema (no pip). Requeridos en PATH.
+# TTS de demo: System.Speech nativo de Windows (sin dependencia pip).
+kaggle>=1.7              # despacho a GPU Kaggle (PuertoEjecutor)
+anthropic>=0.110        # prompts por LLM opcional (--prompts-llm); requiere ANTHROPIC_API_KEY

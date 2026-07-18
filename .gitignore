@@ -1,0 +1,12 @@
+__pycache__/
+*.pyc
+artifacts/
+.venv/
+
+# Credenciales — NUNCA al repo
+kaggle.json
+access_token
+.kaggle/
+*.secret
+# Kernel temporal de despacho a Kaggle
+kaggle_kernel/
