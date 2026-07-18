@@ -10,3 +10,5 @@ access_token
 *.secret
 # Kernel temporal de despacho a Kaggle
 kaggle_kernel/
+# Config local de Claude Code (permisos/rutas locales, no versionar)
+.claude/
