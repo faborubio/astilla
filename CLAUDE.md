@@ -37,7 +37,8 @@ conclusiones de un short individual en ese tramo. Ver [[primer-short-publicado]]
 1. Fabián graba el guion (mismo lugar sin ruido, 20-30cm del mic, si se traba repite la frase sin
    cortar). Cae en `Documents/Grabaciones de sonido/<nombre>.m4a`.
 2. **`python scripts/limpiar_voz.py --in <...>.m4a --out artifacts/voz_<n>.wav`** — highpass+arnndn
-   (`bd.rnnn`)+comp+ganancia estática a -16 LUFS (NO loudnorm 1-pasada) + corta silencio inicial solo.
+   (`bd.rnnn`)+comp+ganancia estática a -16 LUFS (NO loudnorm 1-pasada) + recorta silencio inicial
+   Y cola final (silencio + click de detener grabación; `--sin-recorte-final` lo desactiva).
 3. `python -m pipeline.animado --audio artifacts/voz_<n>.wav --guion artifacts/guion_<n>.txt
    --autorizacion original --estilo historico --modelo medium --semilla N --stub-visual` (transcribe
    + planifica 7 escenas). ⚠️ **GOTCHA 11:** aparta `artifacts/segmentos.json` viejo antes (reuso ciego);

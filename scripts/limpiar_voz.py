@@ -5,8 +5,9 @@ Formaliza el flujo manual de CLAUDE.md (§RETOMAR paso 2). Cadena buena:
     highpass=80 -> arnndn (denoise RNN) -> acompressor -> volume(NdB) -> alimiter
 NO usa loudnorm de 1 pasada (sube el ruido en las pausas). En vez de eso:
 mide el loudness integrado y aplica una GANANCIA ESTATICA (volume) para llegar
-al target -> no bombea el piso de ruido. Ademas corta el silencio inicial
-(mata la retencion en shorts) de forma automatica.
+al target -> no bombea el piso de ruido. Ademas recorta automaticamente el
+silencio INICIAL (mata la retencion en shorts) y la cola FINAL (silencio +
+el click de 'detener grabacion'). Desactivable con --sin-recorte-final.
 
 Uso:
     python scripts/limpiar_voz.py --in artifacts/guion_historia/telegrafo.m4a \
@@ -34,6 +35,8 @@ LIMITE_TP = -1.5                          # techo (dBTP) del limiter
 UMBRAL_SILENCIO = "-35dB"                # coincide con CLAUDE.md
 DUR_SILENCIO = 0.4                         # s de silencio para contar como pausa
 COLA_PALABRA = 0.15                       # s de aire que dejamos antes de la 1a palabra
+COLA_FINAL = 0.20                         # s de aire que dejamos despues de la ultima palabra
+MIN_VOZ = 0.30                            # tramos con voz mas cortos que esto = blip (p.ej. el click)
 
 
 def _run(cmd: list[str]) -> subprocess.CompletedProcess:
@@ -51,6 +54,53 @@ def medir_loudness(path: Path) -> float:
         print("  ! no pude medir loudness, asumo -23 LUFS", file=sys.stderr)
         return -23.0
     return float(json.loads(m.group(0))["input_i"])
+
+
+def duracion(path: Path) -> float:
+    """Duracion en segundos via ffprobe."""
+    cp = _run([
+        "ffprobe", "-v", "error", "-show_entries", "format=duration",
+        "-of", "default=noprint_wrappers=1:nokey=1", str(path),
+    ])
+    try:
+        return float(cp.stdout.strip())
+    except ValueError:
+        return 0.0
+
+
+def detectar_fin_voz(path: Path, dur_total: float) -> float | None:
+    """Segundo donde termina la ultima palabra real (antes del silencio final y el
+    click de 'detener grabacion'). Devuelve None si no hay cola muerta que recortar.
+
+    Reconstruye los tramos con voz (complemento de los silencios) y descarta los
+    blips mas cortos que MIN_VOZ (el click es un pico brevisimo), quedandose con el
+    fin del ultimo tramo hablado de verdad.
+    """
+    cp = _run([
+        "ffmpeg", "-hide_banner", "-i", str(path),
+        "-af", f"silencedetect=noise={UMBRAL_SILENCIO}:d={DUR_SILENCIO}",
+        "-f", "null", "-",
+    ])
+    starts = [float(x) for x in re.findall(r"silence_start: ([\d.]+)", cp.stderr)]
+    ends = [float(x) for x in re.findall(r"silence_end: ([\d.]+)", cp.stderr)]
+    if not starts:
+        return None
+
+    prev_end = 0.0
+    voiced: list[tuple[float, float]] = []
+    for i, s in enumerate(starts):
+        voiced.append((prev_end, s))
+        prev_end = ends[i] if i < len(ends) else dur_total
+    if prev_end < dur_total:
+        voiced.append((prev_end, dur_total))
+
+    fin_voz = None
+    for ini, fin in voiced:
+        if fin - ini >= MIN_VOZ:
+            fin_voz = fin
+    if fin_voz is None or dur_total - fin_voz < 0.2:
+        return None  # la voz llega hasta el final: no hay silencio/click que sacar
+    return min(dur_total, fin_voz + COLA_FINAL)
 
 
 def detectar_inicio_voz(path: Path) -> float:
@@ -84,6 +134,8 @@ def main() -> int:
     ap.add_argument("--in", dest="entrada", required=True, type=Path)
     ap.add_argument("--out", dest="salida", required=True, type=Path)
     ap.add_argument("--target", type=float, default=TARGET_LUFS, help="LUFS objetivo (def -16)")
+    ap.add_argument("--sin-recorte-final", action="store_true",
+                    help="NO recortar la cola (silencio final + click de detener grabacion)")
     ap.add_argument("--dry-run", action="store_true", help="solo reporta tiempos/loudness")
     args = ap.parse_args()
 
@@ -108,20 +160,31 @@ def main() -> int:
 
         lufs = medir_loudness(tmp)
         inicio = detectar_inicio_voz(tmp)
+        dur_total = duracion(tmp)
+        fin = None if args.sin_recorte_final else detectar_fin_voz(tmp, dur_total)
 
     gain = args.target - lufs
     print(f"[2/4] Loudness medido: {lufs:.1f} LUFS  ->  ganancia {gain:+.1f} dB (target {args.target})")
     print(f"[3/4] Voz entra en: {inicio:.2f}s  (se recorta el silencio inicial)")
+    if fin is not None:
+        print(f"      Voz termina en: {fin:.2f}s de {dur_total:.2f}s  "
+              f"(se recorta {dur_total - fin:.2f}s de cola: silencio final + click)")
+    else:
+        print(f"      Sin recorte de cola (no se detecto silencio/click al final).")
 
     if args.dry_run:
         print("[dry-run] no escribo nada.")
         return 0
 
     args.salida.parent.mkdir(parents=True, exist_ok=True)
-    ss = ["-ss", f"{inicio:.3f}"] if inicio > 0.05 else []
+    in_args: list[str] = []
+    if inicio > 0.05:
+        in_args += ["-ss", f"{inicio:.3f}"]
+    if fin is not None:
+        in_args += ["-t", f"{fin - inicio:.3f}"]
     print(f"[4/4] Escribiendo {args.salida} ...")
     cp = _run([
-        "ffmpeg", "-y", "-hide_banner", *ss, "-i", str(args.entrada),
+        "ffmpeg", "-y", "-hide_banner", *in_args, "-i", str(args.entrada),
         "-af", cadena_limpieza(gain),
         "-ar", "16000", "-ac", "1", "-c:a", "pcm_s16le", str(args.salida),
     ])
