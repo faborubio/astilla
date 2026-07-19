@@ -184,7 +184,99 @@ de Claude, subtítulos y divulgación: idénticos. Flag `--motion {kenburns,anim
 
 ---
 
+## CASO-006 · Coherencia de personaje (H-1): retrato-ancla + IP-Adapter
+
+**Fecha:** 2026-07 · **Estado:** 🟡 código listo, falta validar en GPU
+
+### Qué demuestra
+El cierre real de H-1 (identidad, no solo estilo): se autogenera un **retrato-ancla**
+close-up del personaje y se aplica por escena con **IP-Adapter** para mantener la misma
+cara. Flag `--coherencia` (implica `--motion animatediff`).
+
+### Detalle
+`prompt_personaje` (en `planificacion.py`) fuerza primer plano de cara + negativo
+anti-plano-abierto: con fuentes reales el ancla tendía a planos abiertos (figura lejana)
+y SadTalker fallaba con *"can not detect the landmark"* (gotcha 9). Config: `ip_scale=0.6`.
+
+### Pendiente honesto
+Falta correrlo en GPU y **afinar `ip_scale`** (fidelidad de identidad vs. libertad de escena).
+
+---
+
+## CASO-009 · Personaje hablante audio-driven (arquitectura de capas)
+
+**Fecha:** 2026-07 · **Estado:** ✅ short completo end-to-end
+
+### Qué demuestra
+Un **hablante** (talking-head) manejado por el audio (SadTalker en Kaggle) compuesto
+**sobre** un ambiente generado por IA + subtítulos. No es video IA end-to-end: son capas
+(`pipeline.hablante` + `animado` + `ensamblado_hablante_ffmpeg`). Salida: `short_hablante.mp4`,
+y `short_hablante_pro.mp4` con matting (`matting_rembg`, u2net) + karaoke por palabra.
+
+### Bugs resueltos
+**SadTalker en Kaggle (py3.12) = campo minado** (gotcha 7): instalar deps sin pines + `numpy<2`,
+parches a `animate.py`/`align_img`, correr con `cwd=/tmp/SadTalker`. Race del dataset de audio
+(gotcha 10) → dataset content-addressed + poll a `ready`.
+
+---
+
+## CASO-010 · LTX-2.3 API — video generativo CON API, 9:16 real
+
+**Fecha:** 2026-07 · **Estado:** ✅ verificado, short publicado
+
+### Qué demuestra
+Video generativo por API (sin GPU efímera): **t2v + i2v**, 9:16 por parámetro de resolución,
+prompts pictóricos escritos por Claude en sesión. Reemplaza el paso manual de Luma (que no
+tiene API en el plan consumidor). Costo: **$0.06/s pro** ($0.04 fast) → ~$3-4/short.
+
+### Comando
+```bash
+python scripts/generar_ltx.py --nombre <n> --indices todas --auto --pro
+```
+`scripts/generar_ltx.py` (embrión del `ejecutor_ltx` detrás del `PuertoEjecutor`). Key en
+`~/.ltx/api_key`. Short v2 (Anticitera) publicado con este flujo. Ver [[ltx-api-validada]].
+
+---
+
+## CASO-011 · Circuito de producción formalizado (tanda telégrafo/pelo)
+
+**Fecha:** 2026-07 · **Estado:** ✅ 2 shorts terminados
+
+### Qué demuestra
+El copy-paste de ffmpeg se volvió **scripts reusables**: `limpiar_voz.py` (highpass+arnndn+
+comp+ganancia estática a -16 LUFS + recorte de silencio inicial/cola), `armar_short.py`
+(transcribe por palabra y **reconcilia contra el guion-verdad**, karaoke mínimo, bed, quema),
+`reconciliar_palabras.py`, `retimear_bed.py` (cortes alineados al beat).
+
+### Gotchas (11-13, ver [[produccion-tanda-telegrafo-pelo]])
+Checkpoint `segmentos.json` reusado a ciegas · guion largo rompe la transcripción por palabra
+(bug de `transcribir_palabras` arreglado) · cortes de escena desalineados del audio → retimeo.
+
+---
+
+## CASO-012 · Refactor folder-aware + tanda de 4 (Chile pendiente)
+
+**Fecha:** 2026-07-19 · **Estado:** ✅ 4 shorts terminados (arquero, trepanacion, cerebro_vidrio, hormigon)
+
+### Qué demuestra
+**Un short = una carpeta** `artifacts/shorts/<n>/` con nombres fijos; todos los scripts toman
+`--nombre` y resuelven rutas solos (`scripts/rutas.py::RutasShort`). Esto ordenó el despelote de
+`artifacts/` (viejo → `_legacy/`) y **mató el gotcha 11 de raíz** (cada checkpoint es propio de su
+carpeta). Salidas: `shorts/{arquero(48s),trepanacion(54s),cerebro_vidrio(63s),hormigon(48s)}/short_musica.mp4`.
+
+### Bugs / lecciones
+1. **Transcripción (`transcribir()`):** `initial_prompt`=guion-entero + `vad_filter=True` **truncaba**
+   a la mitad; sin vad **alucinaba** el arranque ("Princeton en el siglo diecinueve"). Fix: ambos
+   apagados (el texto final igual sale del pase por-palabra reconciliado).
+2. **Audio — repeticiones al grabar:** si el locutor se traba y repite la frase, la repetición QUEDA
+   en el wav (`limpiar_voz` no la borra). Se corta a mano con `aselect='not(between(t,A,B))'` empalmando
+   en los silencios, y se re-arma (clips LTX se reusan, $0). `para_grabar.md` ahora pide pausar 1-2s
+   antes de repetir. Si la cola se come el CTA → `--sin-recorte-final` + recorte manual.
+
+Ver [[refactor-folder-aware-y-fix-transcripcion]].
+
+---
+
 ## Próximos casos (roadmap)
-- **CASO-006** — coherencia/identidad de personaje (H-1): IP-Adapter / imagen de referencia.
 - **CASO-007** — reanudación tras desconexión: matar el proceso y retomar (ADR-002).
 - **CASO-008** — capa MCP: "generá 3 shorts de este episodio, estilo cómic".

@@ -35,8 +35,16 @@ class TranscriptorWhisper:
             str(audio_recorte),
             language=self._idioma,
             beam_size=5,
-            vad_filter=True,  # corta silencios: subtitulos mas limpios
-            initial_prompt=self._guion or None,
+            # GOTCHA (jul 2026): pasar el guion-entero como initial_prompt AQUI rompe el
+            # nivel-segmento de dos formas distintas segun el audio: con vad_filter=True
+            # TRUNCA a la mitad (el decoder "completa" el prompt y corta al primer silencio
+            # que marca el VAD); con vad_filter=False a veces COLAPSA los primeros ~18s en
+            # una linea alucinada (ej. "Princeton en el siglo diecinueve"). Este pase solo
+            # alimenta el TIMING de las escenas -> no necesita el bias del guion: el texto
+            # final sale de transcribir_palabras (que ya reconcilia contra el guion-verdad).
+            # Config robusta = ambos apagados: cobertura total y sin alucinar el arranque.
+            vad_filter=False,
+            initial_prompt=None,
         )
         return [
             SegmentoTranscrito(

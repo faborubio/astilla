@@ -18,14 +18,25 @@ Hoy tiene **dos modos** (mismo pipeline, solo cambia la fuente):
 
 ---
 
-## ⏭️ RETOMAR ACÁ (2026-07-18)
+## ⏭️ RETOMAR ACÁ (2026-07-19)
 
-**Estado:** 🎉 **3 SHORTS PUBLICADOS.** El motor produce shorts end-to-end por ~$3 c/u (LTX **pro**).
-Publicados: Anticitera v2 (**youtube.com/shorts/caRNsgvRorc**, día 1: 595 vistas contaminadas),
-telégrafo (**youtube.com/shorts/YWyjv3tG4SA**) y pelo/catapultas (**youtube.com/shorts/xQJHJD4XJFI**).
-Archivos: `artifacts/short_telegrafo_musica.mp4` (51s) y `short_pelo_catapultas_musica.mp4` (46s),
-cada uno con versión solo-voz `short_<n>.mp4`. El circuito quedó **formalizado en scripts reusables**
-(ya no es copy-paste de ffmpeg). Ver [[produccion-tanda-telegrafo-pelo]] para gotchas 11-13.
+**Estado:** 🎉 **3 SHORTS PUBLICADOS + 4 LISTOS PARA PUBLICAR.** El motor produce shorts end-to-end
+por ~$3-4 c/u (LTX **pro**). Publicados: Anticitera v2 (**youtube.com/shorts/caRNsgvRorc**), telégrafo
+(**youtube.com/shorts/YWyjv3tG4SA**) y pelo/catapultas (**youtube.com/shorts/xQJHJD4XJFI**).
+**Terminados esta tanda (jul 2026), sin publicar:** `artifacts/shorts/{arquero,trepanacion,
+cerebro_vidrio,hormigon}/short_musica.mp4` (48-63s). Títulos/hashtags en `artifacts/titulos.txt`.
+
+**⚠️ LECCIÓN de esta tanda (audio):** al grabar, si Fabián se traba y **repite la frase**, esa
+repetición QUEDA en el audio (`limpiar_voz` no la borra). Hay que **cortarla a mano** del wav (empalme
+en los silencios con `aselect='not(between(t,A,B))'`) y re-correr armar+retimeo+música (los clips LTX
+se reusan, $0 extra). Por eso la nota de `para_grabar.md` ahora pide **pausar 1-2s antes de repetir**.
+Además: si la cola se come el CTA final, re-limpiar con `--sin-recorte-final` y recortar la cola a mano.
+
+**🔧 FIXES de pipeline esta tanda:** (a) `transcripcion_whisper.transcribir()` ya NO pasa el guion como
+`initial_prompt` ni usa `vad_filter` (juntos TRUNCABAN a la mitad o ALUCINABAN el arranque; el texto
+final igual sale del pase por-palabra reconciliado). (b) **Refactor folder-aware**: un short = una
+carpeta `artifacts/shorts/<n>/`, scripts con `--nombre` (`scripts/rutas.py`). **Gotcha 11 muerto.**
+Ver [[refactor-folder-aware-y-fix-transcripcion]].
 
 **REPO EN GITHUB (jul 2026):** `faborubio/astilla` **privado**, remote `origin` por HTTPS (`gh`
 autenticado como faborubio). `.claude/` NO se versiona (config local). `artifacts/` gitignored
@@ -43,48 +54,63 @@ mejor · anticitera **747** · pelo/Cartago **222 a 11h con 74,4% de retención*
 funciona; las vistas absolutas NO son comparables entre shorts de distinta edad); **el título-
 pregunta con brecha gana**; **0 comentarios** en los 3 = gap. Ver [[estrategia-canal-vestigios]].
 
-**ESTRATEGIA NUEVA aplicada esta sesión** (deriva de datos + checklist de 7 factores Hook/Retención/
-Duración/CTA/Constancia/Hashtags/Suscriptores): (1) **títulos-pregunta** reescritos para los 4
-pendientes en `artifacts/titulos.txt` (rec+alt+hashtags); (2) **CTA de comentario** agregado al
-cierre de los 4 guiones pendientes (`artifacts/guion_*.txt`); (3) **hashtags** por short en
-`titulos.txt`. Focos abiertos del checklist: **constancia** (grabar seguido, el factor más frágil)
-y auditar el **hook a 2s** en Studio. NO perseguir foto-realismo/GPU: el moat es guion+distribución.
+**ESTRATEGIA aplicada (checklist de 7 factores Hook/Retención/Duración/CTA/Constancia/Hashtags/
+Suscriptores):** **títulos-pregunta** + **CTA de comentario** al cierre + **hashtags** por short, todo
+en `artifacts/titulos.txt` y en los guiones. Focos abiertos: **constancia** (grabar seguido, el factor
+más frágil) y auditar el **hook a 2s** en Studio. NO perseguir foto-realismo/GPU: el moat es guion+
+distribución. **SERIE CHILE** arrancada (guiones lautaro/guerra_pacifico/cruce_andes listos, sin grabar).
 
-**El circuito de producción (formalizado en scripts jul 2026, reproducible):**
-1. Fabián graba el guion (mismo lugar sin ruido, 20-30cm del mic, si se traba repite la frase sin
-   cortar). Cae en `Documents/Grabaciones de sonido/<nombre>.m4a`.
-2. **`python scripts/limpiar_voz.py --in <...>.m4a --out artifacts/voz_<n>.wav`** — highpass+arnndn
-   (`bd.rnnn`)+comp+ganancia estática a -16 LUFS (NO loudnorm 1-pasada) + recorta silencio inicial
-   Y cola final (silencio + click de detener grabación; `--sin-recorte-final` lo desactiva).
-3. `python -m pipeline.animado --audio artifacts/voz_<n>.wav --guion artifacts/guion_<n>.txt
-   --autorizacion original --estilo historico --modelo medium --semilla N --stub-visual` (transcribe
-   + planifica 7 escenas). ⚠️ **GOTCHA 11:** aparta `artifacts/segmentos.json` viejo antes (reuso ciego);
-   resguardá `segmentos_<n>.json` / `visual_job_<n>.json`.
-4. Claude escribe los prompts pictóricos por escena EN SESIÓN → `artifacts/prompts_<n>.json` (ancla de
+**📁 ESTRUCTURA (folder-aware desde jul 2026): un short = una carpeta `artifacts/shorts/<n>/`**
+con nombres FIJOS: `voz.wav`, `guion.txt`, `prompts.json`, `segmentos.json`, `visual_job.json`,
+`palabras.json`, `subs.ass`, `bed.mp4`, `clips/escena_NN.mp4`, `short.mp4`, `short_musica.mp4`.
+Compartidos en la raíz `artifacts/`: `bd.rnnn`, `musica_lightless_dawn.mp3`, `titulos.txt`,
+`para_grabar.md`. Lo viejo (telegrafo, pelo, anticitera, historia, hablante, luma) en `artifacts/_legacy/`.
+Todos los scripts toman `--nombre <n>` y resuelven las rutas solas (`scripts/rutas.py::RutasShort`).
+**Esto mató el gotcha 11 de raíz** (cada checkpoint es propio de su carpeta, imposible reusar el de
+otro short).
+
+**El circuito de producción (folder-aware, reproducible):**
+1. Fabián graba el guion (mismo lugar sin ruido, 20-30cm del mic). **Si se traba: pausa 1-2s en
+   silencio y repite la frase entera.** ⚠️ `limpiar_voz` NO borra repeticiones — Claude las corta a
+   mano después (esa pausa clara es la que deja el corte limpio). Cae en `Documents/Grabaciones de sonido/<nombre>.m4a`.
+2. **`python scripts/limpiar_voz.py --in "<...>.m4a" --nombre <n>`** → `shorts/<n>/voz.wav`.
+   highpass+arnndn (`bd.rnnn`)+comp+ganancia estática a -16 LUFS (NO loudnorm 1-pasada) + recorta
+   silencio inicial Y cola final (`--sin-recorte-final` la desactiva; usar si la cola se come el CTA).
+3. `python -m pipeline.animado --nombre <n> --audio artifacts/shorts/<n>/voz.wav --guion
+   artifacts/shorts/<n>/guion.txt --autorizacion original --evidencia "..." --estilo historico
+   --modelo medium --semilla N --stub-visual` (transcribe + planifica escenas). Con `--nombre`
+   escribe `segmentos.json`/`visual_job.json` DENTRO de la carpeta (ya no hay que apartar nada).
+   Nota: si cambiás el audio, **borrá `shorts/<n>/segmentos.json` y `palabras.json`** para forzar
+   re-transcripción (siguen siendo checkpoints, pero ahora aislados por carpeta).
+4. Claude escribe los prompts pictóricos por escena EN SESIÓN → `shorts/<n>/prompts.json` (ancla de
    estilo compartida = *painterly oil painting, teal+amber, chiaroscuro, 9:16*; incluir un plano
-   explainer tipo diagrama Da Vinci en la escena larga). Re-correr animado con `--prompts-file` los hornea.
-5. Preservar clips del short anterior (`mv artifacts/escenas_ltx/escena_*.mp4 artifacts/escenas_ltx_<prev>/`)
-   y `python scripts/generar_ltx.py --indices todas --auto --pro` (clips LTX, ~$3; cap 10s/clip).
-6. `python scripts/armar_short.py --nombre <n> --segmentos artifacts/segmentos_<n>.json
-   --audio artifacts/voz_<n>.wav --guion artifacts/guion_<n>.txt --semilla N` (transcribe por palabra,
-   **reconcilia con el guion-verdad**, karaoke MÍNIMO, bed, quema).
-7. **Retimeo alineado al contenido (GOTCHA 13):** mirar `palabras_<n>.json`, elegir 7 cortes en los
-   límites de beat, `python scripts/retimear_bed.py --nombre <n> --audio <...> --cortes "a,b; b,c; ..."`.
-8. Música: `[musica]volume=0.12,afade in/out` + `amix normalize=0` + master `loudnorm=I=-16:TP=-1.5`
-   → `short_<n>_musica.mp4`. Atribuir a **Kevin MacLeod (CC-BY)**.
+   explainer tipo diagrama Da Vinci en la escena larga). Inyectarlos en `visual_job.json` (o re-correr
+   animado con `--prompts-file`) los hornea.
+5. `python scripts/generar_ltx.py --nombre <n> --indices todas --auto --pro` → clips en
+   `shorts/<n>/clips/` (~$3-4 según duración del audio; cap 10s/clip; **el costo lo fija la duración
+   del audio, no la cantidad de escenas**).
+6. `python scripts/armar_short.py --nombre <n> --semilla N` (transcribe por palabra,
+   **reconcilia con el guion-verdad**, karaoke MÍNIMO, bed, quema). Todo se resuelve de la carpeta.
+7. **Retimeo alineado al contenido (GOTCHA 13):** mirar `shorts/<n>/palabras.json`, elegir 1 corte por
+   clip en los límites de frase, `python scripts/retimear_bed.py --nombre <n> --cortes "a,b; b,c; ..."`.
+8. Música: `[1:a]volume=0.12,afade in/out` + `amix normalize=0` + master `loudnorm=I=-16:TP=-1.5`
+   → `shorts/<n>/short_musica.mp4`. Atribuir a **Kevin MacLeod (CC-BY)**.
 
 **Próximos pasos:**
-1. **Seguir grabando** en orden: **arquero → trepanacion → cerebro_vidrio → hormigon**. Los 4 guiones
-   YA tienen CTA de cierre y sus títulos/hashtags están en `artifacts/titulos.txt` (usar al publicar).
-   Cadencia: 1 short cada 1-2 días (cuello de botella = grabar la voz, no el pipeline). Al grabar,
-   dejar ~1s de silencio antes de tocar el mouse (el recorte de cola de `limpiar_voz` así queda perfecto).
-2. **Watchear métricas** de los 3 publicados; métrica primaria = **% visto/retención** (no vistas
+1. **PUBLICAR los 4 terminados** (`artifacts/shorts/{arquero,trepanacion,cerebro_vidrio,hormigon}/
+   short_musica.mp4`) con sus títulos-pregunta y hashtags de `artifacts/titulos.txt`. Toggle de
+   divulgación de IA ON. Cadencia: 1 cada 1-2 días (mantener constancia). Atribuir a Kevin MacLeod.
+2. **Grabar la serie Chile** (lautaro → guerra_pacifico → cruce_andes): guion listo en
+   `artifacts/shorts/<n>/guion.txt` y en el teleprompter `artifacts/para_grabar.md`. Al grabar, si te
+   trabás **pausá 1-2s antes de repetir** (la repetición queda en el audio y se corta a mano).
+3. **Watchear métricas** de los publicados; métrica primaria = **% visto/retención** (no vistas
    absolutas). Señal aún ruidosa por la reeducación del algoritmo.
-3. **Branding de Vestigios:** foto de perfil (emblema de engranaje) + banner. Ocultar (unlisted) los
+4. **Branding de Vestigios:** foto de perfil (emblema de engranaje) + banner. Ocultar (unlisted) los
    videos viejos de música para limpiar la señal del canal.
-4. **Deuda técnica:** (a) generalizar el retimeo (paso 7) dentro de `armar_short.py`; (b) formalizar
-   `ejecutor_ltx.py` detrás del `PuertoEjecutor` (hoy `scripts/generar_ltx.py`); (c) content-address
-   los checkpoints (`segmentos.json`) para matar el gotcha 11 de raíz.
+5. **Deuda técnica:** (a) generalizar el retimeo (paso 7) dentro de `armar_short.py`; (b) formalizar
+   `ejecutor_ltx.py` detrás del `PuertoEjecutor` (hoy `scripts/generar_ltx.py`); (c) revisar saldo
+   LTX en el dashboard (no hay endpoint de balance; la tanda de 4 costó ~$14 pro). ✅ El gotcha 11
+   quedó resuelto por el refactor folder-aware (checkpoints aislados por carpeta).
 
 **Sobre `ANTHROPIC_API_KEY`:** ya NO es bloqueante con Claude en sesión (escribe los prompts como
 `--prompts-file`). Solo haría falta para correr el pipeline 100% autónomo (cron/lote sin nadie).
@@ -105,6 +131,7 @@ y auditar el **hook a 2s** en Studio. NO perseguir foto-realismo/GPU: el moat es
 | CASO-009 | **Personaje hablante** (capas): hablante audio-driven (SadTalker) compuesto sobre ambiente IA + subs (`pipeline.hablante` + `animado` + `ensamblado_hablante_ffmpeg`) | ✅ short completo end-to-end (`short_hablante.mp4`) |
 | CASO-010 | **LTX-2.3 API** (video generativo CON API, $0.04/s): t2v + i2v, 9:16 por parámetro, prompts pictóricos por Claude en sesión. Short v2 publicado | ✅ `scripts/generar_ltx.py` + `armar_short_v2.py`; ver [[ltx-api-validada]] |
 | CASO-011 | **Circuito de producción formalizado** (tanda telégrafo/pelo): `limpiar_voz.py`, `armar_short.py` (parametrizado, reconcilia guion↔timing), `reconciliar_palabras.py`, `retimear_bed.py`. Bug de `transcribir_palabras` arreglado. 2 shorts terminados | ✅ ver [[produccion-tanda-telegrafo-pelo]] (gotchas 11-13) |
+| CASO-012 | **Refactor folder-aware + tanda de 4** (arquero/trepanacion/cerebro_vidrio/hormigon): un short = una carpeta `artifacts/shorts/<n>/`, scripts con `--nombre` (`scripts/rutas.py`). Fix transcripción (vad+guion truncaba/alucinaba). Repeticiones al grabar → corte manual del wav. **Gotcha 11 muerto** | ✅ 4 shorts terminados; ver [[refactor-folder-aware-y-fix-transcripcion]] |
 
 **LUMA (H-2 concretado, jul 2026):** `ambiente_clips_ffmpeg.ambiente_bed_clips` = adaptador de
 ambiente por CLIPS de video (hermano de `ambiente_bed`/Ken Burns). Ajusta clips de ~5s al beat de
@@ -115,13 +142,13 @@ prompts en plural ("close-up **shots**") producen artefacto de **tríptico** (co
 usar "a single continuous shot"; Plan Plus = consumidor, **sin API** → paso manual (para automatizar
 tras el `PuertoEjecutor` hace falta API de desarrollador). Flujo recomendado: **imagen primero**
 (Photon, iterar barato) → luego image-to-video. Ancla de estilo compartida en las N escenas = H-1
-resuelto (ver `artifacts/prompts_luma.md`).
+resuelto (ver `artifacts/_legacy/prompts_luma.md`).
 
 **MODO ORIGINAL (pivot a divulgación, jul 2026):** el motor ya servía sin tocar orquestador ni gate.
 Agregado: estilo `historico` (look documental) · `--guion guion.txt` (el guion propio es la VERDAD:
 sesga a Whisper vía `initial_prompt` → deja de adivinar nombres propios, solo resuelve timing) ·
 `--prompts-file prompts.json` (override del operador por escena, H-4). Con guion+voz propios el
-gate pasa como `original` → **publicable de verdad**. Ver `artifacts/short_historia_sd.mp4`.
+gate pasa como `original` → **publicable de verdad**. Ver `artifacts/_legacy/short_historia_sd.mp4`.
 Aprendizaje: el heurístico de prompts elige palabras LARGAS (abstractas: "cuatrocientos",
 "encontraron"), inútiles como prompt visual → para divulgación hace falta `--prompts-llm` (Claude)
 o el override. SD1.5 brilla en macro de textura y falla en gente/escala (ahí entra Luma).
@@ -196,34 +223,33 @@ python -m pipeline.animado --audio sources/x.wav --autorizacion dominio_publico 
     --evidencia "URL" --modelo medium --prompts-llm --motion animatediff --kaggle
 ```
 
-### MODO ORIGINAL — el flujo activo (divulgación/historia)
+### MODO ORIGINAL — el flujo activo (divulgación/historia), folder-aware
+
+> El circuito paso a paso (con gotchas) está arriba en **§RETOMAR ACÁ → "El circuito de producción"**.
+> Todo vive en `artifacts/shorts/<n>/` y los scripts toman `--nombre`. End-to-end de un short:
 
 ```bash
-# 1) Limpiar la voz grabada (paso-alto + denoise + compresión + loudness broadcast)
-ffmpeg -y -i "artifacts/guion_historia/mi_voz.m4a" \
-  -af "highpass=f=80,afftdn=nf=-25,acompressor=threshold=-18dB:ratio=3:attack=5:release=50,loudnorm=I=-16:TP=-1.5:LRA=11" \
-  -c:a pcm_s16le -ar 16000 -ac 1 artifacts/guion_historia.wav
-
-# 2) ⚠️ CORTAR EL SILENCIO INICIAL (había 5.4s → mata la retención en shorts)
-ffmpeg -i artifacts/guion_historia.wav -af "silencedetect=noise=-35dB:d=0.4" -f null -   # detectar
-ffmpeg -y -ss <inicio_voz> -to <fin_voz> -i artifacts/guion_historia.wav -c:a pcm_s16le artifacts/guion_trim.wav
-# los tiempos de segmentos.json se pueden DESPLAZAR matemáticamente (-offset) en vez de re-transcribir
-
-# 3) Pipeline: gate original + guion como verdad + prompts del operador
-python -m pipeline.animado --audio artifacts/guion_trim.wav \
-    --guion artifacts/guion_historia.txt --prompts-file artifacts/prompts_historia.json \
-    --autorizacion original --evidencia "Guion y voz propios (contenido original)" \
-    --estilo historico --modelo medium --semilla 7 --kaggle
-
-# 4) Bed limpio (sin subs) + karaoke + quemar
-#    - con stills SD:  ambiente_bed(escenas_dir, escenas, audio, receta, dest)
-#    - con clips Luma: ambiente_bed_clips({indice: Path(clip)}, escenas, audio, receta, dest)
-ffmpeg -y -i artifacts/bed_luma.mp4 -vf "ass=artifacts/subs_trim.ass" -c:a copy artifacts/short_final.mp4
+# 1) limpiar voz grabada -> shorts/<n>/voz.wav
+python scripts/limpiar_voz.py --in "Documents/Grabaciones de sonido/<n>.m4a" --nombre <n>
+# 2) transcribir + planificar (segmentos.json + visual_job.json en la carpeta)
+python -m pipeline.animado --nombre <n> --audio artifacts/shorts/<n>/voz.wav \
+    --guion artifacts/shorts/<n>/guion.txt --autorizacion original \
+    --evidencia "Guion y voz propios (contenido original)" --estilo historico \
+    --modelo medium --semilla N --stub-visual
+# 3) Claude escribe shorts/<n>/prompts.json e inyecta en visual_job.json
+# 4) clips LTX -> shorts/<n>/clips/   (~$3-4)
+python scripts/generar_ltx.py --nombre <n> --indices todas --auto --pro
+# 5) armar (palabras + karaoke + bed + quema) -> shorts/<n>/short.mp4
+python scripts/armar_short.py --nombre <n> --semilla N
+# 6) retimeo alineado al contenido (mirar shorts/<n>/palabras.json)
+python scripts/retimear_bed.py --nombre <n> --cortes "0,a; a,b; ..."
+# 7) música -> shorts/<n>/short_musica.mp4  (afade + amix normalize=0 + loudnorm -16)
 ```
-> El `ass=` usa **ruta relativa** corriendo desde la raíz del repo: evita el escape de `C:` en Windows.
+> El `ass=` de armar/retimear usa **ruta relativa** (`shorts/<n>/subs.ass`): evita el escape de `C:` en Windows.
 
-Salidas en `artifacts/` (gitignored): `short*.mp4` + `rastro.json` (linaje: sha256, autorización,
-receta/semilla, divulgación) + `visual_job.json`.
+Salidas por short en `artifacts/shorts/<n>/` (gitignored): `short.mp4` / `short_musica.mp4` + los
+intermedios. `rastro.json` (linaje: sha256, autorización, receta/semilla, divulgación) lo emite el
+modo demo/kaggle en la raíz.
 
 ## Entorno y credenciales
 

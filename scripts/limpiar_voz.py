@@ -132,12 +132,23 @@ def cadena_limpieza(gain_db: float) -> str:
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--in", dest="entrada", required=True, type=Path)
-    ap.add_argument("--out", dest="salida", required=True, type=Path)
+    ap.add_argument("--out", dest="salida", type=Path, default=None,
+                    help="destino .wav (override); con --nombre def artifacts/shorts/<n>/voz.wav")
+    ap.add_argument("--nombre", default=None,
+                    help="short: escribe a artifacts/shorts/<n>/voz.wav")
     ap.add_argument("--target", type=float, default=TARGET_LUFS, help="LUFS objetivo (def -16)")
     ap.add_argument("--sin-recorte-final", action="store_true",
                     help="NO recortar la cola (silencio final + click de detener grabacion)")
     ap.add_argument("--dry-run", action="store_true", help="solo reporta tiempos/loudness")
     args = ap.parse_args()
+
+    if args.salida is None:
+        if not args.nombre:
+            print("ERROR: pasar --out <ruta.wav> o --nombre <short>", file=sys.stderr)
+            return 2
+        sys.path.insert(0, str(Path(__file__).resolve().parent))
+        from rutas import RutasShort
+        args.salida = RutasShort(args.nombre, crear=True).voz
 
     if not args.entrada.exists():
         print(f"ERROR: no existe {args.entrada}", file=sys.stderr)

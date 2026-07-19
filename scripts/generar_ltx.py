@@ -1,7 +1,10 @@
-# Genera clips LTX (text-to-video) para escenas del visual_job.json vigente.
+# Genera clips LTX (text-to-video) para escenas del visual_job de un short.
 # Embrion del futuro ejecutor_ltx (PuertoEjecutor). Key: %USERPROFILE%\.ltx\api_key.
+# Folder-aware (jul 2026): con --nombre lee artifacts/shorts/<n>/visual_job.json y
+# escribe los clips en artifacts/shorts/<n>/clips/.
 #
-# Uso:  python scripts/generar_ltx.py --indices 0,3,7 [--duracion 4] [--pro]
+# Uso:  python scripts/generar_ltx.py --nombre arquero --indices todas --auto --pro
+#       python scripts/generar_ltx.py --job <ruta.json> --indices 0,3,7   (override)
 import argparse
 import json
 import sys
@@ -10,6 +13,7 @@ import urllib.request
 from pathlib import Path
 
 from prueba_ltx import leer_key
+from rutas import RutasShort
 
 API_URL = "https://api.ltx.video/v1/text-to-video"
 MOVIMIENTO = "Slow cinematic camera push-in, subtle drifting particles, a single continuous shot."
@@ -22,10 +26,18 @@ def main() -> None:
     ap.add_argument("--auto", action="store_true",
                     help="duracion por escena = ceil(fin-inicio) del visual_job (evita ralenti)")
     ap.add_argument("--pro", action="store_true")
-    ap.add_argument("--job", type=Path, default=Path("artifacts/visual_job.json"))
+    ap.add_argument("--nombre", default=None, help="short (def: artifacts/shorts/<n>/)")
+    ap.add_argument("--job", type=Path, default=None, help="override del visual_job.json")
+    ap.add_argument("--clips-dir", type=Path, default=None, help="override del destino de clips")
     args = ap.parse_args()
 
-    job = json.loads(args.job.read_text(encoding="utf-8"))
+    if not args.nombre and not args.job:
+        sys.exit("pasar --nombre <short> (o --job <ruta.json>)")
+    r = RutasShort(args.nombre) if args.nombre else None
+    job_path = args.job or r.visual_job
+    dest_dir = args.clips_dir or (r.clips if r else Path("artifacts/escenas_ltx"))
+
+    job = json.loads(job_path.read_text(encoding="utf-8"))
     escenas = {e["indice"]: e for e in job["escenas"]}
     indices = sorted(escenas) if args.indices == "todas" else [
         int(i) for i in args.indices.split(",")]
@@ -45,7 +57,7 @@ def main() -> None:
             if args.auto else args.duracion)
         for i in indices
     }
-    destino_dir = Path("artifacts/escenas_ltx")
+    destino_dir = dest_dir
     destino_dir.mkdir(parents=True, exist_ok=True)
     total_s = sum(duraciones.values())
     print(f">> {len(indices)} escenas, {total_s}s total, {modelo} (~${tarifa * total_s:.2f})")

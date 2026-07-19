@@ -70,6 +70,9 @@ def _fuente_y_auth(args) -> tuple[Fuente, Autorizacion]:
 
 def main() -> None:
     p = argparse.ArgumentParser(description="Astilla — flujo animado (Fase 2, Colab).")
+    p.add_argument("--nombre", default=None,
+                   help="short: escribe segmentos/visual_job y previews en artifacts/shorts/<n>/ "
+                        "(checkpoint propio: mata el gotcha 11 del segmentos.json compartido)")
     p.add_argument("--estilo", default="neon", choices=["neon", "comic", "minimal", "historico"])
     p.add_argument("--semilla", type=int, default=1)
     p.add_argument("--inicio", type=float, default=0.0)
@@ -102,6 +105,12 @@ def main() -> None:
         raise SystemExit("--coherencia requiere --motion animatediff (IP-Adapter sobre los clips).")
 
     ARTIFACTS.mkdir(parents=True, exist_ok=True)
+    # folder-aware (jul 2026): con --nombre todo va a artifacts/shorts/<n>/ y el
+    # checkpoint segmentos.json es PROPIO de la carpeta -> imposible reusar el de
+    # otro short (mata el gotcha 11). Sin --nombre: comportamiento viejo (raiz).
+    OUT = (ARTIFACTS / "shorts" / args.nombre) if args.nombre else ARTIFACTS
+    OUT.mkdir(parents=True, exist_ok=True)
+    escenas_dir = (OUT / "stub_escenas") if args.nombre else ESCENAS_DIR
 
     # --- Fase A: gate + transcripcion + planificacion -----------------------
     fuente, auth = _fuente_y_auth(args)
@@ -111,10 +120,10 @@ def main() -> None:
     dur_fuente = _duracion_s(fuente.ruta_audio)
     fin = args.fin if args.fin > 0 else dur_fuente
     recorte = Recorte(fuente_id=fuente.id, timecode=Timecode(inicio_s=args.inicio, fin_s=fin))
-    audio_recorte = extraer_recorte(fuente.ruta_audio, recorte, ARTIFACTS / "recorte.wav")
+    audio_recorte = extraer_recorte(fuente.ruta_audio, recorte, OUT / "recorte.wav")
     receta = Receta(id="rec-anim", version=1, estilo=args.estilo, semilla=args.semilla)
 
-    seg_path = ARTIFACTS / "segmentos.json"
+    seg_path = OUT / "segmentos.json"
     if seg_path.exists():
         from .domain.entities import SegmentoTranscrito
         segmentos = [SegmentoTranscrito(**d) for d in json.loads(seg_path.read_text(encoding="utf-8"))]
@@ -145,8 +154,8 @@ def main() -> None:
                 for e in escenas
             ]
             biblia = res.biblia  # descripcion del personaje recurrente -> ancla IP-Adapter
-            (ARTIFACTS / "biblia_estilo.txt").write_text(res.biblia, encoding="utf-8")
-            print(f"[prompts] refinados por Claude · biblia -> artifacts/biblia_estilo.txt")
+            (OUT / "biblia_estilo.txt").write_text(res.biblia, encoding="utf-8")
+            print(f"[prompts] refinados por Claude · biblia -> {OUT / 'biblia_estilo.txt'}")
         except Exception as e:  # sin API key / sin red / error -> fallback heuristico
             print(f"[prompts] Claude no disponible ({type(e).__name__}); uso prompts heuristicos")
 
@@ -175,11 +184,11 @@ def main() -> None:
         }
         print(f"[coherencia] IP-Adapter ON · retrato-ancla del personaje (semilla {receta.semilla})")
 
-    exportar_job_visual(escenas, receta, ARTIFACTS / "visual_job.json",
+    exportar_job_visual(escenas, receta, OUT / "visual_job.json",
                         motion=motion_modo, coherencia=coherencia)
-    print(f"[planificacion] {len(escenas)} escenas ({args.motion}) -> artifacts/visual_job.json")
+    print(f"[planificacion] {len(escenas)} escenas ({args.motion}) -> {OUT / 'visual_job.json'}")
 
-    SubtituladorASS().generar(segmentos, receta, ARTIFACTS / "subtitulos.ass", DIVULGACION_IA)
+    SubtituladorASS().generar(segmentos, receta, OUT / "subtitulos.ass", DIVULGACION_IA)
 
     def artefacto(e):  # nombre segun el modo de movimiento
         return e.nombre_clip if motion_modo == "animatediff" else e.nombre_artefacto
@@ -189,17 +198,17 @@ def main() -> None:
         if motion_modo == "animatediff":
             raise SystemExit("--stub-visual solo aplica a --motion kenburns. Para animatediff usa --kaggle.")
         print("[visual] generando stand-ins locales (NO es IA; prueba de movimiento)...")
-        generar_stubs(escenas, receta, ESCENAS_DIR)
+        generar_stubs(escenas, receta, escenas_dir)
     elif args.kaggle:
         from .infrastructure.ejecutor_kaggle import generar_en_kaggle
-        generar_en_kaggle(ARTIFACTS / "visual_job.json", ESCENAS_DIR, RAIZ / "kaggle_kernel", motion=motion_modo)
+        generar_en_kaggle(OUT / "visual_job.json", escenas_dir, RAIZ / "kaggle_kernel", motion=motion_modo)
 
-    faltan = [e.indice for e in escenas if not (ESCENAS_DIR / artefacto(e)).exists()]
+    faltan = [e.indice for e in escenas if not (escenas_dir / artefacto(e)).exists()]
     if not args.ensamblar and not args.stub_visual and not args.kaggle:
         print("\n=== Fase A lista. Siguiente paso: generar visuales ===")
         print(f"  Kaggle (auto):  re-corre agregando  --kaggle  (modo {args.motion})")
         print(f"  Colab (manual): sube artifacts/visual_job.json al notebook (ver COLAB.md),")
-        print(f"                  baja los artefactos a {ESCENAS_DIR}\\ y re-corre con --ensamblar.")
+        print(f"                  baja los artefactos a {escenas_dir}\\ y re-corre con --ensamblar.")
         if motion_modo == "imagen":
             print(f"  Prueba local:   --stub-visual  (movimiento sin IA)")
         return
@@ -214,7 +223,7 @@ def main() -> None:
         print("[ensamblado] animando stills (Ken Burns) + subtitulos + divulgacion...")
         ensamblador = EnsambladorEscenas()
     destino = ensamblador.ensamblar(
-        ESCENAS_DIR, escenas, audio_recorte, ARTIFACTS / "subtitulos.ass", receta, ARTIFACTS / "short_animado.mp4"
+        escenas_dir, escenas, audio_recorte, OUT / "subtitulos.ass", receta, OUT / "short_animado.mp4"
     )
     print("\n=== LISTO ===")
     print(f"Escenas:  {len(escenas)}  (estilo {receta.estilo}, semilla {receta.semilla})")
