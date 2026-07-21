@@ -270,7 +270,7 @@ carpeta). Salidas: `shorts/{arquero(48s),trepanacion(54s),cerebro_vidrio(63s),ho
    apagados (el texto final igual sale del pase por-palabra reconciliado).
 2. **Audio — repeticiones al grabar:** si el locutor se traba y repite la frase, la repetición QUEDA
    en el wav (`limpiar_voz` no la borra). Se corta a mano con `aselect='not(between(t,A,B))'` empalmando
-   en los silencios, y se re-arma (clips LTX se reusan, $0). `para_grabar.md` ahora pide pausar 1-2s
+   en los silencios, y se re-arma (clips LTX se reusan, $0). `guiones.md` ahora pide pausar 1-2s
    antes de repetir. Si la cola se come el CTA → `--sin-recorte-final` + recorte manual.
 
 Ver [[refactor-folder-aware-y-fix-transcripcion]].

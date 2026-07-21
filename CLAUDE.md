@@ -4,6 +4,8 @@
 > Fuente de verdad de arquitectura: [`SAD_Astilla_repurposing.md`](./SAD_Astilla_repurposing.md)
 > (en especial **§11.b "Revisión de halcón"** — la crítica de diseño H-1…H-8).
 > Bitácora cronológica: [`MEMORY.md`](./MEMORY.md) · Casos demostrables: [`docs/CASES.md`](./docs/CASES.md)
+> Deuda aceptada: [`docs/AUDIT.md`](./docs/AUDIT.md) · Incidentes/gotchas: [`docs/TROUBLESHOOTING.md`](./docs/TROUBLESHOOTING.md) · Parking lot: [`IDEAS.md`](./IDEAS.md)
+> Pendientes: **`## Próxima sesión` al final de este doc** (nombre estable del Método).
 
 ## Qué es
 
@@ -18,18 +20,18 @@ Hoy tiene **dos modos** (mismo pipeline, solo cambia la fuente):
 
 ---
 
-## ⏭️ RETOMAR ACÁ (2026-07-19)
+## ⏭️ Estado (2026-07-20)
 
-**Estado:** 🎉 **3 SHORTS PUBLICADOS + 4 LISTOS PARA PUBLICAR.** El motor produce shorts end-to-end
-por ~$3-4 c/u (LTX **pro**). Publicados: Anticitera v2 (**youtube.com/shorts/caRNsgvRorc**), telégrafo
-(**youtube.com/shorts/YWyjv3tG4SA**) y pelo/catapultas (**youtube.com/shorts/xQJHJD4XJFI**).
-**Terminados esta tanda (jul 2026), sin publicar:** `artifacts/shorts/{arquero,trepanacion,
-cerebro_vidrio,hormigon}/short_musica.mp4` (48-63s). Títulos/hashtags en `artifacts/titulos.txt`.
+**Estado:** 🎉 **7 SHORTS PUBLICADOS** (los 3 originales + la tanda de 4 ya salió toda). El motor
+produce shorts end-to-end por ~$3-4 c/u (LTX **pro**). Publicados: Anticitera v2
+(**youtube.com/shorts/caRNsgvRorc**), telégrafo (**youtube.com/shorts/YWyjv3tG4SA**), pelo/catapultas
+(**youtube.com/shorts/xQJHJD4XJFI**) + arquero, trepanacion, cerebro_vidrio, hormigon.
+**No hay tanda terminada sin publicar.** Lo que sigue es GRABAR el banco de guiones (abajo).
 
 **⚠️ LECCIÓN de esta tanda (audio):** al grabar, si Fabián se traba y **repite la frase**, esa
 repetición QUEDA en el audio (`limpiar_voz` no la borra). Hay que **cortarla a mano** del wav (empalme
 en los silencios con `aselect='not(between(t,A,B))'`) y re-correr armar+retimeo+música (los clips LTX
-se reusan, $0 extra). Por eso la nota de `para_grabar.md` ahora pide **pausar 1-2s antes de repetir**.
+se reusan, $0 extra). Por eso la nota de `guiones.md` ahora pide **pausar 1-2s antes de repetir**.
 Además: si la cola se come el CTA final, re-limpiar con `--sin-recorte-final` y recortar la cola a mano.
 
 **🔧 FIXES de pipeline esta tanda:** (a) `transcripcion_whisper.transcribir()` ya NO pasa el guion como
@@ -40,7 +42,7 @@ Ver [[refactor-folder-aware-y-fix-transcripcion]].
 
 **REPO EN GITHUB (jul 2026):** `faborubio/astilla` **privado**, remote `origin` por HTTPS (`gh`
 autenticado como faborubio). `.claude/` NO se versiona (config local). `artifacts/` gitignored
-(guiones, `titulos.txt`, wavs, mp4 quedan solo locales). Commitear/pushear cuando se pida.
+(guiones `guiones.md`, wavs, mp4 quedan solo locales). Commitear/pushear cuando se pida.
 
 **CANAL: `VESTIGIOS`** (handle `@vestigios.historia`) — nicho historia/divulgación, look museo/
 documental, paleta teal+ámbar. ⚠️ NO es canal nuevo: preexistía con música IA (sin tracción) →
@@ -48,23 +50,50 @@ reconvertido. Las 595 vistas están "contaminadas" por audiencia de música, NO 
 Los próximos 4-5 shorts REEDUCAN al algoritmo → 2-3 semanas de datos ruidosos, no sacar
 conclusiones de un short individual en ese tramo. Ver [[primer-short-publicado]].
 
-**📊 PRIMERA SEÑAL DE MÉTRICAS (2026-07-18, 3 shorts):** telégrafo (título-pregunta) **~1K** = el
-mejor · anticitera **747** · pelo/Cartago **222 a 11h con 74,4% de retención** y ~8% likes. Canal:
-**11 subs (+4/28d)**. Lecturas: la **retención ~74% es el número limpio y es alto** (el guion
-funciona; las vistas absolutas NO son comparables entre shorts de distinta edad); **el título-
-pregunta con brecha gana**; **0 comentarios** en los 3 = gap. Ver [[estrategia-canal-vestigios]].
+**📊 MÉTRICAS (2026-07-20, con la tanda de 4 ya publicada):** canal **23 subs (+18/28d**, casi el
+doble desde los 11 de la medición anterior). Los 4 nuevos con **like-rate ~7%** (arquero 898/70,
+cerebro_vidrio 778/55, trepanacion 688/36, pelo 577/41) = la señal más limpia de que el guion
+funciona. 4,2K vistas / 37,9h en 28d. **⚠️ hormigón: retención 53,9%** (vs 74% del baseline) →
+**tema saturado** (Fabián lo vio en varios canales); no es falla de guion. **Comentarios ~0 sigue
+siendo el gap.** Primera señal (3 shorts, 74,4% retención): [[estrategia-canal-vestigios]].
+
+**🔑 DOS CRITERIOS DE TEMA NUEVOS (2026-07-20, ver [[estrategia-canal-vestigios]] §7-8):**
+(a) **chequear saturación antes de elegir tema** (el hormigón lo probó); (b) **evitar temas de odio
+entre naciones** aunque den comentarios — se retiró el guion de la Guerra del Pacífico (agravio
+Bolivia/mar, imán de flame) y se reemplazó por **pisagua** (misma guerra, encuadre de MECANISMO:
+desembarco anfibio). Nada de superlativos falsos ("primero del mundo"). El género bélico es un
+desvío: los hits siempre fueron "técnica ingeniosa", no guerra.
 
 **ESTRATEGIA aplicada (checklist de 7 factores Hook/Retención/Duración/CTA/Constancia/Hashtags/
 Suscriptores):** **títulos-pregunta** + **CTA de comentario** al cierre + **hashtags** por short, todo
-en `artifacts/titulos.txt` y en los guiones. Focos abiertos: **constancia** (grabar seguido, el factor
+en el maestro `artifacts/guiones.md`. Focos abiertos: **constancia** (grabar seguido, el factor
 más frágil) y auditar el **hook a 2s** en Studio. NO perseguir foto-realismo/GPU: el moat es guion+
-distribución. **SERIE CHILE** arrancada (guiones lautaro/guerra_pacifico/cruce_andes listos, sin grabar).
+distribución.
+
+**📝 BANCO DE GUIONES sin grabar (al 2026-07-20):** `lautaro`, `cruce_andes`, **`pisagua`** (Guerra
+del Pacífico reencuadrada como operación anfibia) + **serie mecanismos de América**: **`chuno`**
+(chuño/liofilizado de papa), **`quipus`**. **Fuente única de texto = el maestro
+`artifacts/guiones.md`** (título + hashtags + guion de cada short, una sección por short); el
+`shorts/<n>/guion.txt` que consume el pipeline se GENERA de ahí con
+`python scripts/exportar_guion.py --nombre <n>` (solo la voz hablada) — no editar guion.txt a mano.
+El guion viejo de Guerra del Pacífico se retiró a `artifacts/_legacy/shorts_retirados/guerra_pacifico/`.
+Todos siguen la fórmula (gancho contraintuitivo → problema → mecanismo → tríada de 3 palabras →
+cierre → CTA) sobre hechos reales.
+
+**⚠️ `moais` EN PAUSA (saturado, chequeo 2026-07-20):** el guion existe (`artifacts/shorts/moais/`)
+pero el tema "cómo caminaron los moáis" está **explotando en Shorts ahora** (shorts con el mismo
+ángulo en oct-2025 … may-2026) → es el nuevo `hormigón`. NO grabar hasta que baje la ola (revisar
+en ~3-6 meses). **Reemplazo elegido para la línea Isla de Pascua: `manavai`** (jardines de piedra:
+cómo cultivaban en la isla volcánica pelada con corrales que rompen el viento y atrapan humedad) —
+saturación en Shorts casi nula (solo prensa de conservación), mecanismo puro, on-brand. **Guion de
+`manavai` ya escrito** (sección #11 del maestro `guiones.md` + título en el mismo). `pukao` (subir el
+sombrero) se descartó por estar pegado al tema saturado del moái. Ver [[estrategia-canal-vestigios]] §9.
 
 **📁 ESTRUCTURA (folder-aware desde jul 2026): un short = una carpeta `artifacts/shorts/<n>/`**
 con nombres FIJOS: `voz.wav`, `guion.txt`, `prompts.json`, `segmentos.json`, `visual_job.json`,
 `palabras.json`, `subs.ass`, `bed.mp4`, `clips/escena_NN.mp4`, `short.mp4`, `short_musica.mp4`.
-Compartidos en la raíz `artifacts/`: `bd.rnnn`, `musica_lightless_dawn.mp3`, `titulos.txt`,
-`para_grabar.md`. Lo viejo (telegrafo, pelo, anticitera, historia, hablante, luma) en `artifacts/_legacy/`.
+Compartidos en la raíz `artifacts/`: `bd.rnnn`, `musica_lightless_dawn.mp3`, `guiones.md` (maestro:
+título + hashtags + guion de todos los shorts). Lo viejo (telegrafo, pelo, anticitera, historia, hablante, luma) en `artifacts/_legacy/`.
 Todos los scripts toman `--nombre <n>` y resuelven las rutas solas (`scripts/rutas.py::RutasShort`).
 **Esto mató el gotcha 11 de raíz** (cada checkpoint es propio de su carpeta, imposible reusar el de
 otro short).
@@ -76,6 +105,9 @@ otro short).
 2. **`python scripts/limpiar_voz.py --in "<...>.m4a" --nombre <n>`** → `shorts/<n>/voz.wav`.
    highpass+arnndn (`bd.rnnn`)+comp+ganancia estática a -16 LUFS (NO loudnorm 1-pasada) + recorta
    silencio inicial Y cola final (`--sin-recorte-final` la desactiva; usar si la cola se come el CTA).
+2b. **`python scripts/exportar_guion.py --nombre <n>`** → genera `shorts/<n>/guion.txt` (solo la voz
+   hablada) desde la sección del maestro `artifacts/guiones.md`. El guion se edita SIEMPRE en el
+   maestro, nunca en guion.txt directo. (Si cambiás el texto en el maestro, re-exportá.)
 3. `python -m pipeline.animado --nombre <n> --audio artifacts/shorts/<n>/voz.wav --guion
    artifacts/shorts/<n>/guion.txt --autorizacion original --evidencia "..." --estilo historico
    --modelo medium --semilla N --stub-visual` (transcribe + planifica escenas). Con `--nombre`
@@ -96,21 +128,7 @@ otro short).
 8. Música: `[1:a]volume=0.12,afade in/out` + `amix normalize=0` + master `loudnorm=I=-16:TP=-1.5`
    → `shorts/<n>/short_musica.mp4`. Atribuir a **Kevin MacLeod (CC-BY)**.
 
-**Próximos pasos:**
-1. **PUBLICAR los 4 terminados** (`artifacts/shorts/{arquero,trepanacion,cerebro_vidrio,hormigon}/
-   short_musica.mp4`) con sus títulos-pregunta y hashtags de `artifacts/titulos.txt`. Toggle de
-   divulgación de IA ON. Cadencia: 1 cada 1-2 días (mantener constancia). Atribuir a Kevin MacLeod.
-2. **Grabar la serie Chile** (lautaro → guerra_pacifico → cruce_andes): guion listo en
-   `artifacts/shorts/<n>/guion.txt` y en el teleprompter `artifacts/para_grabar.md`. Al grabar, si te
-   trabás **pausá 1-2s antes de repetir** (la repetición queda en el audio y se corta a mano).
-3. **Watchear métricas** de los publicados; métrica primaria = **% visto/retención** (no vistas
-   absolutas). Señal aún ruidosa por la reeducación del algoritmo.
-4. **Branding de Vestigios:** foto de perfil (emblema de engranaje) + banner. Ocultar (unlisted) los
-   videos viejos de música para limpiar la señal del canal.
-5. **Deuda técnica:** (a) generalizar el retimeo (paso 7) dentro de `armar_short.py`; (b) formalizar
-   `ejecutor_ltx.py` detrás del `PuertoEjecutor` (hoy `scripts/generar_ltx.py`); (c) revisar saldo
-   LTX en el dashboard (no hay endpoint de balance; la tanda de 4 costó ~$14 pro). ✅ El gotcha 11
-   quedó resuelto por el refactor folder-aware (checkpoints aislados por carpeta).
+**Próximos pasos:** → ver **`## Próxima sesión`** al final del doc (nombre estable del Método).
 
 **Sobre `ANTHROPIC_API_KEY`:** ya NO es bloqueante con Claude en sesión (escribe los prompts como
 `--prompts-file`). Solo haría falta para correr el pipeline 100% autónomo (cron/lote sin nadie).
@@ -155,12 +173,13 @@ o el override. SD1.5 brilla en macro de textura y falla en gente/escala (ahí en
 
 **Pase de calidad (en curso):** ✅ matting del hablante (`matting_rembg`, u2net) · ✅ subtítulos
 karaoke por palabra estilo CapCut (`subtitulos_karaoke_ass` + `transcribir_palabras`).
-Resultado: `short_hablante_pro.mp4`. Pendiente: personaje **SDXL/Flux** hi-res (hoy SD1.5 256²),
-template de estudio (mic/auriculares), enhancer GFPGAN, head motion (sin `--still`), afinar
-borde del matte (feather), integrar karaoke al flujo `hablante` end-to-end (hoy es paso aparte).
+Resultado: `short_hablante_pro.mp4`. Las mejoras pendientes del hablante (SDXL/Flux, GFPGAN,
+head motion, template de estudio, feather del matte, karaoke end-to-end) quedaron **congeladas
+con el flujo** → parqueadas en [`IDEAS.md`](./IDEAS.md) (AUD-007).
 
-**Pendiente (roadmap):** unificar `recorte.wav` entre hablante y ambiente · CASO-006 ajustar
-`ip_scale` · CASO-007 reanudación tras desconexión (ADR-002) · CASO-008 capa MCP.
+**Pendiente (roadmap):** diferido al parking lot [`IDEAS.md`](./IDEAS.md) — reanudación
+(CASO-007/ADR-002), capa MCP (CASO-008), pipeline autónomo, publicación automática, SFX,
+mejoras hablante. Nada de eso entra sin tracción que lo reclame.
 
 ## Arquitectura (Clean Architecture-lite)
 
@@ -225,12 +244,14 @@ python -m pipeline.animado --audio sources/x.wav --autorizacion dominio_publico 
 
 ### MODO ORIGINAL — el flujo activo (divulgación/historia), folder-aware
 
-> El circuito paso a paso (con gotchas) está arriba en **§RETOMAR ACÁ → "El circuito de producción"**.
+> El circuito paso a paso (con gotchas) está arriba en **§Estado → "El circuito de producción"**.
 > Todo vive en `artifacts/shorts/<n>/` y los scripts toman `--nombre`. End-to-end de un short:
 
 ```bash
 # 1) limpiar voz grabada -> shorts/<n>/voz.wav
 python scripts/limpiar_voz.py --in "Documents/Grabaciones de sonido/<n>.m4a" --nombre <n>
+# 1b) exportar guion.txt (voz hablada) desde el maestro artifacts/guiones.md
+python scripts/exportar_guion.py --nombre <n>
 # 2) transcribir + planificar (segmentos.json + visual_job.json en la carpeta)
 python -m pipeline.animado --nombre <n> --audio artifacts/shorts/<n>/voz.wav \
     --guion artifacts/shorts/<n>/guion.txt --autorizacion original \
@@ -260,40 +281,16 @@ modo demo/kaggle en la raíz.
 - **Prompts LLM:** definir `ANTHROPIC_API_KEY` (si falta, cae al heurístico). `claude-opus-4-8`.
 - 🔒 Credenciales en `.gitignore` (`kaggle.json`, `access_token`, `.kaggle/`). Nunca al repo/chat.
 
-## Gotchas aprendidos (NO repetir)
+## Gotchas e incidentes (NO repetir)
 
-1. **Kaggle GPU: forzar T4.** La P100 es CUDA sm_60 e **incompatible con el PyTorch de
-   Kaggle (sm_70+)** → kernel ERROR con log vacío. Se fuerza `machine_shape: NvidiaTeslaT4`.
-2. **Modelo SD:** `runwayml/stable-diffusion-v1-5` fue retirado de HF → usar mirror
-   `stable-diffusion-v1-5/stable-diffusion-v1-5`.
-3. **Token Kaggle nuevo `KGAT_`** va en `~/.kaggle/access_token` o env `KAGGLE_API_TOKEN`,
-   NO en `kaggle.json` (rompe el parser). El legacy `{username,key}` es lo más probado.
-4. **ffmpeg zoompan con `-loop 1 -t`** multiplica frames (explosión) → usar input único
-   + `-frames:v N`.
-5. **Output de procesos en background está bufferizado** — para ver el estado de un kernel
-   Kaggle, consultar `kaggle kernels status <user>/<slug>` directo, no el stdout local.
-6. **Derechos:** rechazar reels de IG de terceros para publicación (gate ADR-009). Para
-   prueba LOCAL no publicada se registró el uso honestamente. Fuentes limpias: dominio
-   público (LibriVox/archive.org `language:spa`) o audio propio.
-7. **SadTalker en Kaggle (Python 3.12) = campo minado.** Su `requirements.txt` no instala
-   (pines viejos). Recetа que funciona (ver `ejecutor_kaggle._KERNEL_TALKING`): instalar
-   deps **sin pines** + `numpy<2`; **NO** usar `-r requirements.txt`. Parches al código
-   clonado: (a) import del enhancer (`gfpgan`) hecho opcional en `animate.py` — el dir
-   local `gfpgan/` de pesos ensombrece al paquete; (b) aliases `np.float/int/bool` →
-   tipos reales (removidos en numpy 1.24, y no hay numpy con esos aliases + wheels 3.12);
-   (c) `align_img`: `np.array([...,t[0],t[1]])` → `float(...)` (arrays inhomogéneos).
-   Correr `inference.py` con `cwd=/tmp/SadTalker` (imports relativos) y clonar/checkpoints
-   en `/tmp` (NO en `/kaggle/working`, si no el output pesa ~1GB).
-8. **`kaggle datasets create --dir-mode zip`** monta el dataset distinto en runtime →
-   `FileNotFoundError`. Subir sin `--dir-mode` (archivo suelto en `/kaggle/input/<slug>/`).
-9. **El ancla (retrato del personaje) NO debe arrastrar temas de escena del transcript.**
-   Con fuentes reales eso genera planos abiertos (figura lejana) y SadTalker falla:
-   `can not detect the landmark from source image`. `prompt_personaje` fuerza primer
-   plano de cara + negativo anti-plano-abierto (`ancla_negativo`). Verificado con audio real.
-10. **Race del dataset de audio en Kaggle:** subir nueva versión y despachar el kernel al
-    toque hace que agarre la versión ANTERIOR del wav (audio equivocado, mismo nombre).
-    Fix: dataset **content-addressed** (hash del wav en el slug) + poll `kaggle datasets
-    status` hasta `ready` antes del push. Síntoma: narrator con duración del audio viejo.
+**Movidos a [`docs/TROUBLESHOOTING.md`](./docs/TROUBLESHOOTING.md)** — gotchas G-1…G-13 +
+incidentes por área (Kaggle/GPU, transcripción, grabación, música, Windows, Luma), en formato
+síntoma → causa → fix. Los tres que más muerden en el flujo activo:
+- **Si cambia el audio de un short, borrar `shorts/<n>/segmentos.json` y `palabras.json`**
+  (checkpoints reusables; G-11/AUD-005).
+- **Al grabar: pausa 1-2s en silencio antes de repetir una frase** — la repetición queda en el
+  wav y se corta a mano.
+- **Kaggle: forzar T4** (`machine_shape: NvidiaTeslaT4`); la P100 muere con log vacío (G-1).
 
 ## 🎯 Benchmark: qué hace funcionar a un short de divulgación (jul 2026)
 
@@ -328,3 +325,31 @@ tramo persiguiendo píxeles. No repetir.
   automático). El `PuertoEjecutor` lo abstrae.
 - **#2a:** Whisper `small` se degrada con audio real ruidoso (música/voces solapadas);
   `medium` lo arregla en la narración (más lento en CPU).
+
+---
+
+## Próxima sesión
+
+> Pendientes en orden de valor. **(Fabián)** = espera acción o decisión del autor.
+
+1. **(Fabián) GRABAR el banco de guiones** (los 7 ya publicados; no hay tanda terminada pendiente).
+   **Orden EXACTO (reordenado 2026-07-20 por saturación, menos saturado primero):**
+   `quipus` → `lautaro` → `cruce_andes` → `chuno` → `pisagua`. `moais` **queda fuera** (saturado, en
+   pausa; su reemplazo `manavai` **ya tiene guion** — sección #11 del maestro). Notas de saturación:
+   `quipus`/`lautaro`/`cruce_andes` casi vírgenes en Shorts; `chuno` saturación MEDIA (hay shorts de
+   "qué es el chuño" pero no del ángulo "montaña como máquina / liofilizado", entrá fuerte en los 2s
+   primeros); `pisagua` último y controlado (flame, §2). Todos los guiones (título + hashtags + texto)
+   viven en el maestro `artifacts/guiones.md`; para grabar, leé de ahí. Al grabar, si te trabás
+   **pausá 1-2s antes de repetir** (la repetición queda en el audio y se corta a mano). Después:
+   pipeline folder-aware (§Estado → circuito, arranca por `exportar_guion.py`).
+2. **(Fabián) Ojo con `pisagua`:** aunque está encuadrado como mecanismo, es la Guerra del Pacífico;
+   si al publicarlo los comentarios se van a la pelea nacionalista, bajar la prioridad de ese
+   sub-tema y quedarse con los de mecanismo puro. Ver [[estrategia-canal-vestigios]] §8.
+3. **Watchear métricas** de los 7 publicados; métrica primaria = **% visto/retención** (no vistas
+   absolutas). Antes de elegir el próximo tema, **chequear que no esté saturado** (lección hormigón,
+   [[estrategia-canal-vestigios]] §7). Sigue el gap de **0 comentarios** pese al CTA en los guiones.
+4. **(Fabián) Branding de Vestigios:** foto de perfil (emblema de engranaje) + banner. Ocultar
+   (unlisted) los videos viejos de música para limpiar la señal del canal.
+5. **Deuda técnica** — ahora numerada en [`docs/AUDIT.md`](./docs/AUDIT.md): AUD-002 (generalizar
+   el retimeo dentro de `armar_short.py`), AUD-003 (formalizar `ejecutor_ltx.py` tras el
+   `PuertoEjecutor`), AUD-004 (revisar saldo LTX en el dashboard; la tanda de 4 costó ~$14 pro).
