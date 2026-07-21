@@ -1,0 +1,31 @@
+{
+  "_nota": "Datos MANUALES del panel (los que no salen del disco). Editá acá y corré: python scripts/generar_panel.py",
+  "canal": {
+    "subs": "23",
+    "subs_delta": "+18 en 28 días",
+    "vistas_28d": "4,2K",
+    "watch_28d": "37,9 h de reproducción",
+    "retencion_baseline": "74,4%",
+    "retencion_baseline_nota": "primeros 3 shorts · métrica primaria"
+  },
+  "produccion": {
+    "quipus":      { "tema": "Contabilidad inca sin escritura · nudos",        "costo": "$4,08" },
+    "lautaro":     { "tema": "Mapuche que aprendió al caballo desde adentro",   "costo": "$3,48" },
+    "cruce_andes": { "tema": "San Martín · 6 pasos + engaño",                   "costo": "$3,36" },
+    "chuno":       { "tema": "Chuño · liofilizado andino de la papa",           "costo": "$3,96 · pausa recortada", "bloqueado": "sin saldo API · faltan 6 clips" }
+  },
+  "publicados": [
+    { "nombre": "telégrafo",      "tema": "comunicación a la velocidad de la luz · tope del canal", "vistas_txt": "~1000", "vistas": 1000, "likes": null, "retencion": "74,4%*", "youtube_id": "YWyjv3tG4SA", "destacado": true },
+    { "nombre": "arquero",        "tema": "fabricar un arquero tardaba 20 años",                    "vistas": 898, "likes": 70, "retencion": null },
+    { "nombre": "cerebro_vidrio", "tema": "el único cerebro de vidrio de la historia",             "vistas": 778, "likes": 55, "retencion": null },
+    { "nombre": "anticitera",     "tema": "el engranaje griego \"de otro tiempo\" · v2",           "vistas": 747, "likes": null, "retencion": "74,4%*", "youtube_id": "caRNsgvRorc" },
+    { "nombre": "trepanación",    "tema": "agujerear el cráneo hace 5000 años y sobrevivir",       "vistas": 688, "likes": 36, "retencion": null },
+    { "nombre": "pelo / catapultas", "tema": "mujeres de Cartago se cortan el pelo para la guerra", "vistas": 577, "likes": 41, "retencion": "74,4%*", "youtube_id": "xQJHJD4XJFI" },
+    { "nombre": "hormigón romano", "tema": "se cura solo bajo el mar · tema saturado",             "vistas": null, "likes": null, "retencion": "53,9%", "saturado": true }
+  ],
+  "banco": [
+    { "nombre": "manavai", "tema": "Jardines de piedra de Rapa Nui · reemplazo de moais. Mecanismo puro, saturación casi nula en Shorts.", "etiqueta": "Guion listo · grabar", "clase": "new", "pill": "ok" },
+    { "nombre": "pisagua", "tema": "Operación anfibia (Guerra del Pacífico reencuadrada). Grabar último y controlado: si el comentario se va al flame nacionalista, bajar el sub-tema.", "etiqueta": "Guion listo · último", "clase": "next", "pill": "pending" },
+    { "nombre": "moais",   "tema": "\"Cómo caminaron los moáis\" · guion listo pero el tema está explotando en Shorts ahora (oct-2025 → may-2026). No grabar hasta que baje la ola (~3-6 meses).", "etiqueta": "En pausa · saturado", "clase": "paused", "pill": "paused" }
+  ]
+}
