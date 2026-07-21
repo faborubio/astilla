@@ -9,12 +9,12 @@
     "retencion_baseline_nota": "primeros 3 shorts · métrica primaria"
   },
   "produccion": {
-    "quipus":      { "tema": "Contabilidad inca sin escritura · nudos",        "costo": "$4,08" },
-    "lautaro":     { "tema": "Mapuche que aprendió al caballo desde adentro",   "costo": "$3,48" },
-    "cruce_andes": { "tema": "San Martín · 6 pasos + engaño",                   "costo": "$3,36" },
-    "chuno":       { "tema": "Chuño · liofilizado andino de la papa",           "costo": "$3,96 · pausa recortada", "bloqueado": "sin saldo API · faltan 6 clips" }
+    "chuno":       { "tema": "Chuño · liofilizado andino de la papa",           "costo": "$3,96 · pausa recortada", "bloqueado": "sin saldo API · faltan 6 clips (indices 3-8)" }
   },
   "publicados": [
+    { "nombre": "quipus",         "tema": "contabilidad inca sin escritura · nudos (fix audio 0:29)", "vistas": null, "likes": null, "retencion": null, "nuevo": true },
+    { "nombre": "lautaro",        "tema": "mapuche que aprendió al caballo desde adentro",          "vistas": null, "likes": null, "retencion": null, "nuevo": true },
+    { "nombre": "cruce_andes",    "tema": "San Martín · 6 pasos + engaño",                          "vistas": null, "likes": null, "retencion": null, "nuevo": true },
     { "nombre": "telégrafo",      "tema": "comunicación a la velocidad de la luz · tope del canal", "vistas_txt": "~1000", "vistas": 1000, "likes": null, "retencion": "74,4%*", "youtube_id": "YWyjv3tG4SA", "destacado": true },
     { "nombre": "arquero",        "tema": "fabricar un arquero tardaba 20 años",                    "vistas": 898, "likes": 70, "retencion": null },
     { "nombre": "cerebro_vidrio", "tema": "el único cerebro de vidrio de la historia",             "vistas": 778, "likes": 55, "retencion": null },

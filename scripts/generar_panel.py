@@ -135,7 +135,9 @@ def fila_publicado(p: dict) -> str:
     else:
         ret_td = '<td class="num dash">—</td>'
 
-    if p.get("saturado"):
+    if p.get("nuevo"):
+        estado_td = '<td><span class="pill active">Nuevo</span></td>'
+    elif p.get("saturado"):
         estado_td = '<td><span class="pill paused">Saturado</span></td>'
     elif p.get("destacado"):
         estado_td = '<td><span class="pill gold">Mejor</span></td>'
@@ -301,7 +303,7 @@ _PLANTILLA = """<!doctype html>
   </section>
 
   <section>
-    <div class="shead"><h2>Publicados</h2><span class="count">{n_pub} shorts · ordenados por vistas</span><span class="rule"></span></div>
+    <div class="shead"><h2>Publicados</h2><span class="count">{n_pub} shorts · nuevos primero</span><span class="rule"></span></div>
     <div class="tablewrap">
       <table>
         <thead><tr>

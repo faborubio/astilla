@@ -5,6 +5,7 @@
 > (en especial **§11.b "Revisión de halcón"** — la crítica de diseño H-1…H-8).
 > Bitácora cronológica: [`MEMORY.md`](./MEMORY.md) · Casos demostrables: [`docs/CASES.md`](./docs/CASES.md)
 > Deuda aceptada: [`docs/AUDIT.md`](./docs/AUDIT.md) · Incidentes/gotchas: [`docs/TROUBLESHOOTING.md`](./docs/TROUBLESHOOTING.md) · Parking lot: [`IDEAS.md`](./IDEAS.md)
+> Estado de producción (abrir con file://): [`docs/panel_produccion.html`](./docs/panel_produccion.html) · regenerar con `python scripts/generar_panel.py`
 > Pendientes: **`## Próxima sesión` al final de este doc** (nombre estable del Método).
 
 ## Qué es
@@ -20,13 +21,33 @@ Hoy tiene **dos modos** (mismo pipeline, solo cambia la fuente):
 
 ---
 
-## ⏭️ Estado (2026-07-20)
+## ⏭️ Estado (2026-07-21)
 
-**Estado:** 🎉 **7 SHORTS PUBLICADOS** (los 3 originales + la tanda de 4 ya salió toda). El motor
-produce shorts end-to-end por ~$3-4 c/u (LTX **pro**). Publicados: Anticitera v2
-(**youtube.com/shorts/caRNsgvRorc**), telégrafo (**youtube.com/shorts/YWyjv3tG4SA**), pelo/catapultas
-(**youtube.com/shorts/xQJHJD4XJFI**) + arquero, trepanacion, cerebro_vidrio, hormigon.
-**No hay tanda terminada sin publicar.** Lo que sigue es GRABAR el banco de guiones (abajo).
+**Estado:** 🎉 **10 SHORTS PUBLICADOS**. El motor produce shorts end-to-end por ~$3-4 c/u (LTX
+**pro**). Publicados: Anticitera v2 (**youtube.com/shorts/caRNsgvRorc**), telégrafo
+(**youtube.com/shorts/YWyjv3tG4SA**), pelo/catapultas (**youtube.com/shorts/xQJHJD4XJFI**), arquero,
+trepanacion, cerebro_vidrio, hormigon + **la tanda nueva quipus / lautaro / cruce_andes** (recién
+subidos 2026-07-21; sin métricas todavía). **No hay tanda terminada sin publicar.**
+
+**⛔ SALDO LTX AGOTADO (2026-07-21, ~$0.65):** la tanda de 4 gastó ~$14.88 y el saldo se acabó a mitad
+de **chuno**, que quedó **bloqueado en 3/9 clips** (los 3 guardados). Se completa SOLO con los 6 que
+faltan cuando se recargue: `python scripts/generar_ltx.py --nombre chuno --indices 3,4,5,6,7,8 --auto
+--pro` (~$2.6) → luego armar_short + música. Estado visible en el **panel** `docs/panel_produccion.html`.
+
+**🖼️ DEUDA VISUAL (espera crédito):** Fabián notó que varios clips de la tanda **no son verídicos
+para la época / la etnia de las personas está equivocada** (LTX mete caras europeas/anacronismos pese
+a "Andean"/"Mapuche"/"Inca" en el prompt). Fix = reforzar prompt con **etnia + época explícitas +
+negativos** y **regen targeted** de los clips ofensivos (no todos). Ver [[fidelidad-visual-ltx-etnia-epoca]].
+
+**🔧 FIX de audio esta tanda:** quipus tenía una repetición de "decenas" a los 0:29 (Whisper la fusionó
+en un token largo con 1.45s de pausa muerta). Se cortó del **video final** con empalme en silencio
+(`trim`+`concat`, ambos extremos en silencio detectado con `silencedetect`) → $0, sin regenerar clips.
+Método nuevo: para cazar repeticiones que Whisper fusiona, mirar palabras con duración anómala + `silencedetect`.
+
+**📊 PANEL DE PRODUCCIÓN (nuevo 2026-07-21):** `docs/panel_produccion.html` (abrir con file://, sin
+cuenta) = estado del pipeline por short (leído del disco) + métricas de publicados + banco. Se regenera
+con `python scripts/generar_panel.py`; datos manuales en `docs/panel_datos.json`. Correrlo tras cada
+avance. (El artifact de claude.ai quedó bajo la cuenta corporativo@caucorp, que Fabián no puede abrir.)
 
 **⚠️ LECCIÓN de esta tanda (audio):** al grabar, si Fabián se traba y **repite la frase**, esa
 repetición QUEDA en el audio (`limpiar_voz` no la borra). Hay que **cortarla a mano** del wav (empalme
@@ -332,22 +353,20 @@ tramo persiguiendo píxeles. No repetir.
 
 > Pendientes en orden de valor. **(Fabián)** = espera acción o decisión del autor.
 
-1. **(Fabián) GRABAR el banco de guiones** (los 7 ya publicados; no hay tanda terminada pendiente).
-   **Orden EXACTO (reordenado 2026-07-20 por saturación, menos saturado primero):**
-   `quipus` → `lautaro` → `cruce_andes` → `chuno` → `pisagua`. `moais` **queda fuera** (saturado, en
-   pausa; su reemplazo `manavai` **ya tiene guion** — sección #11 del maestro). Notas de saturación:
-   `quipus`/`lautaro`/`cruce_andes` casi vírgenes en Shorts; `chuno` saturación MEDIA (hay shorts de
-   "qué es el chuño" pero no del ángulo "montaña como máquina / liofilizado", entrá fuerte en los 2s
-   primeros); `pisagua` último y controlado (flame, §2). Todos los guiones (título + hashtags + texto)
-   viven en el maestro `artifacts/guiones.md`; para grabar, leé de ahí. Al grabar, si te trabás
-   **pausá 1-2s antes de repetir** (la repetición queda en el audio y se corta a mano). Después:
+1. **(Fabián) RECARGAR SALDO LTX** — destraba DOS cosas de una: (a) **completar chuno**
+   (`generar_ltx.py --nombre chuno --indices 3,4,5,6,7,8 --auto --pro` → armar_short + música), y
+   (b) **refinar los clips de etnia/época equivocada** (regen targeted, [[fidelidad-visual-ltx-etnia-epoca]]).
+   Ambas están bloqueadas por saldo ($0.65). Ver panel `docs/panel_produccion.html`.
+2. **(Fabián) GRABAR lo que queda del banco:** `manavai` (mecanismo Isla de Pascua, guion listo) →
+   `pisagua` (último y controlado por flame, §2). `quipus`/`lautaro`/`cruce_andes` **ya publicados**;
+   `moais` en pausa (saturado). Guiones (título + hashtags + **descripción** + texto) en el maestro
+   `artifacts/guiones.md`; leé de ahí. Al grabar, si te trabás **pausá 1-2s antes de repetir**. Después:
    pipeline folder-aware (§Estado → circuito, arranca por `exportar_guion.py`).
-2. **(Fabián) Ojo con `pisagua`:** aunque está encuadrado como mecanismo, es la Guerra del Pacífico;
-   si al publicarlo los comentarios se van a la pelea nacionalista, bajar la prioridad de ese
-   sub-tema y quedarse con los de mecanismo puro. Ver [[estrategia-canal-vestigios]] §8.
-3. **Watchear métricas** de los 7 publicados; métrica primaria = **% visto/retención** (no vistas
-   absolutas). Antes de elegir el próximo tema, **chequear que no esté saturado** (lección hormigón,
-   [[estrategia-canal-vestigios]] §7). Sigue el gap de **0 comentarios** pese al CTA en los guiones.
+3. **Watchear métricas** de los 10 publicados, sobre todo los **3 nuevos** (quipus/lautaro/cruce_andes,
+   subidos 2026-07-21 → 2-3 sem de datos ruidosos por la reeducación del algoritmo, no sacar conclusiones
+   de un short suelto). Métrica primaria = **% visto/retención**. Cargar los números en `docs/panel_datos.json`
+   y regenerar el panel. Antes del próximo tema, **chequear saturación** (lección hormigón, §7). Gap de
+   **0 comentarios**: esta tanda estrenó **comentario-semilla fijado + descripción** para atacarlo.
 4. **(Fabián) Branding de Vestigios:** foto de perfil (emblema de engranaje) + banner. Ocultar
    (unlisted) los videos viejos de música para limpiar la señal del canal.
 5. **Deuda técnica** — ahora numerada en [`docs/AUDIT.md`](./docs/AUDIT.md): AUD-002 (generalizar
