@@ -407,11 +407,22 @@ tramo persiguiendo píxeles. No repetir.
 2. **(Fabián, cuando el pipeline mejore) Retomar `manavai` y `pisagua`** — guion y voz ya están; solo
    falta re-renderizar los clips con el flujo corregido. Título/hashtags/descripción en `artifacts/guiones.md`
    (secciones 11, 13). Activar el toggle de **"contenido alterado o sintético"** (divulgación de IA).
-3. **(Fabián) Banco por grabar (esperar al fix #1):** `agua_rapanui` (2ª de Isla de Pascua, guion #14
-   listo — **no publicar pegado a manavai**). Idea nueva con saturación baja ya chequeada: **Q'eswachaka**
-   (puentes de paja incas) — falta escribir el guion. `moais` en pausa (saturado). Al grabar: **pausá 1-2s
-   antes de repetir**; después el circuito híbrido (§Estado → circuito). **Para temas específicos/históricos
-   tené fotos de referencia a mano** (Nivel 1 prompt + Nivel 2 i2v, [[referencias-y-i2v-para-fidelidad]]).
+3. **(Fabián) Banco por grabar — NUEVA SERIE «Ingenios Olvidados» (9 guiones listos, #15-23):**
+   escritos 2026-07-22 desde las **sugerencias de la IA de YouTube** (afines al algoritmo): mortero
+   bizantino (clara huevo), cúpulas persas (acústica), katana+ceniza, azul maya, espejos venecianos,
+   + 4 **reencuadrados** para esquivar saturación (hierro meteorítico → "cómo lo trabajaban sin fundir";
+   piedra solar vikinga → "óptica de polarización", no magia; mercurio azteca → "ritual/inframundo", no
+   morbo; arsénico papel chino → "conservación", no veneno). **Todos con CTA v2** (ver abajo). Descartados
+   por criterio: humo herbal escita, puente levadizo, plancton polinesio. **Antes de grabar: chequear
+   saturación** de cada uno en Shorts (esp. los reencuadrados). Grabar 1 cada 1-2 días (constancia).
+   Banco previo: `agua_rapanui` (#14, 2ª Isla Pascua — **no pegar a manavai**), Q'eswachaka (falta guion),
+   `moais` en pausa (saturado). Al grabar: **pausá 1-2s antes de repetir**; después el circuito híbrido.
+   **⭐ FÓRMULA v2 (2026-07-22, fix de suscripción):** los datos muestran buena retención + like ~7% PERO
+   **poca suscripción** → diagnóstico (Parte 3 del método, `docs/sistema_contenido.md` #2/#5/#7): el short se
+   siente suelto y el CTA no daba razón para volver. Fix = **CTA que nombra la serie + adelanta el próximo
+   short + pide suscripción** (convierte "short suelto" → "capítulo"). Molde en `artifacts/guiones.md`
+   (sección "FÓRMULA v2"). Series: «Mecanismos de América» (LatAm) y «Ingenios Olvidados» (resto del mundo).
+   Aplica del #15 en adelante; los 1-13 quedan con CTA viejo (no re-grabar). Ver [[formula-v2-cta-suscripcion]].
 4. **Watchear métricas** de los publicados (13 con piston_fuego/sismografo). Los de 2026-07-21
    (quipus/lautaro/cruce_andes/chuno) siguen en ventana ruidosa de reeducación (no concluir de un short
    suelto). Métrica primaria = **% visto/retención** — el informe **"Rendimiento en las primeras 24h"**
