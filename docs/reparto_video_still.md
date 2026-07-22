@@ -1,8 +1,16 @@
 # Reparto VIDEO / STILL por short (plan de pre-producción para exprimir el saldo LTX)
 
-> **Objetivo:** pagar LTX-video (fast, $0.04/s) SOLO en las escenas donde el movimiento vende el
+> ⚠️ **ACTUALIZACIÓN DE POLÍTICA (2026-07-22, fidelidad):** la audiencia criticó "clips que no tienen
+> nada que ver con lo narrado". Causa raíz = **t2v ciego** (video generado desde texto, sin imagen de
+> anclaje ni negative prompt → LTX deriva de etnia/época/objeto). **Nueva regla: las escenas 🎬 de esta
+> tabla van por `--i2v`, NO por `--video`** — se genera primero el still SDXL fiel (negative prompt real
+> controla etnia/época) y LTX solo le agrega movimiento anclado a ese still. **Mismo costo** ($0.04/s).
+> `--video` (t2v ciego) queda solo para escenas donde no exista un still posible. Entonces: **generar
+> TODOS los stills** (los 🖼️ Y los 🎬), y en el paso 5 pasar los 🎬 a `--i2v` en vez de `--video`.
+>
+> **Objetivo original:** pagar LTX-video (fast, $0.04/s) SOLO en las escenas donde el movimiento vende el
 > mecanismo; el resto = **stills SDXL gratis en Kaggle** (`scripts/generar_stills_kaggle.py`) animados
-> con Ken Burns local (`generar_ltx.py --video "..."`). Ver [[ltx-fast-vs-pro-y-hibrido-stills]].
+> con Ken Burns local. Ver [[ltx-fast-vs-pro-y-hibrido-stills]], [[referencias-y-i2v-para-fidelidad]].
 >
 > ⚠️ Los **índices reales de escena salen del `visual_job.json`** (se genera al grabar+transcribir, paso 3
 > del pipeline). Acá el reparto es por **beat del guion**; al grabar, mapeás beat→índice mirando el

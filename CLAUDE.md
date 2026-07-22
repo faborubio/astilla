@@ -169,12 +169,15 @@ otro short).
    <estáticas>` → `clips/still_NN.png`. El negativo por defecto mata foto/etnia/anacronismo; `--negativo`
    lo override (ej. anti "torre/vidrio", anti "casco/velero", anti "todo rojo"). **Revisar por frame y
    regenerar los que fallen (gratis).**
-5. **Video LTX-fast** (paga SOLO las escenas con movimiento): `python scripts/generar_ltx.py --nombre <n>
-   --indices todas --auto --video "<i,j>"` → `clips/escena_NN.mp4` (**fast = $0.04/s**, NO `--pro`; las
-   NO listadas en `--video` = Ken Burns local $0 desde `still_NN.png`). Para escenas donde t2v deriva
-   (uniforme/época/objeto específico), **`--i2v "<i,j>"`** anima un still fiel → ancla el contenido, LTX
-   solo agrega movimiento (generar antes ese `still_NN.png`). Reparto por short: `docs/reparto_video_still.md`.
-   Ver [[ltx-fast-vs-pro-y-hibrido-stills]], [[referencias-y-i2v-para-fidelidad]].
+5. **Video LTX-fast, política i2v-por-defecto (FIDELIDAD, 2026-07-22):** la audiencia criticó "clips
+   que no tienen nada que ver" → causa raíz = **t2v ciego** (`--video`): LTX genera desde texto sin
+   imagen de anclaje ni negative prompt, y deriva de etnia/época/objeto. **Fix = anclar todo money shot
+   a un still SDXL fiel e** `**--i2v**` (LTX solo agrega movimiento, no inventa la escena):
+   `python scripts/generar_ltx.py --nombre <n> --indices todas --auto --i2v "<money_shots>"` (o `--i2v
+   todas`) → `clips/escena_NN.mp4` (**fast = $0.04/s**, NO `--pro`; mismo costo que t2v). Las escenas sin
+   `--i2v`/`--video` = Ken Burns local $0 desde `still_NN.png`. **`--video` (t2v ciego) = solo si NO hay
+   still posible** para esa escena; el script avisa si mandás t2v teniendo still disponible. Reparto por
+   short: `docs/reparto_video_still.md`. Ver [[ltx-fast-vs-pro-y-hibrido-stills]], [[referencias-y-i2v-para-fidelidad]].
 6. `python scripts/armar_short.py --nombre <n> --semilla N` (transcribe por palabra,
    **reconcilia con el guion-verdad**, karaoke MÍNIMO, bed, quema). Todo se resuelve de la carpeta.
 7. **Retimeo alineado al contenido (GOTCHA 13):** mirar `shorts/<n>/palabras.json`, elegir 1 corte por
@@ -314,9 +317,12 @@ python -m pipeline.animado --nombre <n> --audio artifacts/shorts/<n>/voz.wav \
     --modelo medium --semilla N --stub-visual
 # 3) Claude escribe shorts/<n>/prompts.json e inyecta en visual_job.json
 # 4) clips LTX -> shorts/<n>/clips/   (fast por default, $0.04/s; NO usar --pro)
-python scripts/generar_ltx.py --nombre <n> --indices todas --auto
-#    híbrido barato: solo estas escenas van a video, el resto still+Ken Burns ($0, needs clips/still_NN.png)
-#    python scripts/generar_ltx.py --nombre <n> --indices todas --auto --video 0,4
+#    FIDELIDAD (2026-07-22): generá TODOS los stills SDXL fieles primero y animá los money
+#    shots con --i2v (LTX solo agrega movimiento sobre un still fiel, NO inventa la escena).
+#    El t2v ciego (--video) es el que produce "clips que no tienen nada que ver" (crítica de
+#    la audiencia) -> usalo solo si no hay still posible para esa escena.
+python scripts/generar_ltx.py --nombre <n> --indices todas --auto --i2v <money_shots>
+#    el resto (sin --i2v/--video) = still+Ken Burns local ($0). Necesita clips/still_NN.png.
 # 5) armar (palabras + karaoke + bed + quema) -> shorts/<n>/short.mp4
 python scripts/armar_short.py --nombre <n> --semilla N
 # 6) retimeo alineado al contenido (mirar shorts/<n>/palabras.json)

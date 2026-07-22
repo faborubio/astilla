@@ -3,12 +3,19 @@
 # Folder-aware (jul 2026): con --nombre lee artifacts/shorts/<n>/visual_job.json y
 # escribe los clips en artifacts/shorts/<n>/clips/.
 #
-# Uso:  python scripts/generar_ltx.py --nombre arquero --indices todas --auto        (fast, def)
+# POLITICA DE FIDELIDAD (2026-07-22): preferir i2v > still Ken Burns > t2v. El t2v puro es
+# CIEGO (sin imagen de anclaje ni negative prompt) y deriva de etnia/epoca/objeto -> es el que
+# produce los "clips que no tienen nada que ver" que critico la audiencia. Recomendado:
+# generar TODOS los stills SDXL fieles (generar_stills_kaggle.py) y animar los money shots con
+# --i2v (LTX solo agrega movimiento sobre un still fiel). Usar t2v solo si no hay still posible.
+#
+# Uso recomendado (money shots anclados a still fiel):
+#       python scripts/generar_ltx.py --nombre arquero --indices todas --auto --i2v 5,6
+#       (o --i2v todas para animar todas; el resto sin --i2v/--video = still+Ken Burns $0)
+# Variantes:
 #       python scripts/generar_ltx.py --nombre arquero --indices todas --auto --pro
 #       python scripts/generar_ltx.py --job <ruta.json> --indices 0,3,7   (override)
-# Hibrido barato: solo estas escenas van a LTX-video; el resto son still+Ken Burns ($0):
-#       python scripts/generar_ltx.py --nombre arquero --indices todas --auto --video 0,4
-#       (requiere clips/still_NN.png para cada escena NO listada en --video)
+#       --video I,J  = t2v CIEGO (evitar salvo que no exista still para esa escena)
 import argparse
 import base64
 import json
@@ -150,15 +157,37 @@ def main() -> None:
     destino_dir.mkdir(parents=True, exist_ok=True)
 
     # Particion i2v / video(t2v) / still. Prioridad: i2v > video > Ken Burns.
-    pedidos_i = set() if args.i2v is None else {
-        int(x) for x in args.i2v.split(",") if x.strip() != ""}
+    # "todas" como valor de --i2v/--video selecciona todos los indices pedidos (atajo
+    # de la politica i2v-por-defecto: 'anima todos los money shots desde un still fiel').
+    def _sel(arg: str | None) -> set:
+        if arg is None:
+            return set()
+        if arg.strip().lower() == "todas":
+            return set(indices)
+        return {int(x) for x in arg.split(",") if x.strip() != ""}
+
+    pedidos_i = _sel(args.i2v)
     i2v_idx = [i for i in indices if i in pedidos_i]
     if args.video is None:  # clasico: lo que no es i2v va a t2v
         video_idx = [i for i in indices if i not in pedidos_i]
     else:
-        pedidos_v = {int(x) for x in args.video.split(",") if x.strip() != ""}
+        pedidos_v = _sel(args.video)
         video_idx = [i for i in indices if i in pedidos_v and i not in pedidos_i]
     still_idx = [i for i in indices if i not in video_idx and i not in i2v_idx]
+
+    # FIDELIDAD (2026-07-22): el t2v puro es ciego (sin imagen de anclaje ni negative
+    # prompt) -> es el que deriva de etnia/epoca/objeto y produce los "clips que no tienen
+    # nada que ver" que critico la audiencia. Si una escena va a t2v PERO ya existe su
+    # still fiel, avisar: conviene --i2v ese indice (LTX solo agrega movimiento, no inventa).
+    t2v_con_still = [i for i in video_idx if _still_src(destino_dir, i) is not None]
+    if t2v_con_still:
+        idxs = ",".join(str(i) for i in t2v_con_still)
+        print(
+            f"AVISO fidelidad: {len(t2v_con_still)} escena(s) van a t2v CIEGO teniendo "
+            f"still fiel disponible ({idxs}).\n"
+            f"  -> preferi anclarlas: agregalas a --i2v \"{idxs}\" (mismo costo, LTX solo "
+            f"anima el still en vez de inventar la escena). Ver CLAUDE.md > fidelidad visual."
+        )
 
     # Stills e i2v necesitan su PNG en clips/still_NN.png (Kaggle SDXL / Flux / etc.).
     faltan_png = [i for i in (still_idx + i2v_idx) if _still_src(destino_dir, i) is None]
