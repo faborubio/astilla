@@ -12,6 +12,7 @@
 #       (los prompts salen de shorts/<n>/prompts.json; salida -> clips/still_NN.png)
 import argparse
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -33,6 +34,42 @@ from rutas import RutasShort
 NEG_ETNIA = ("photograph, photo, realistic, photorealistic, dslr, film still, sepia, "
              "european face, caucasian, white person, modern clothing, signature, "
              "anime, cartoon, 3d render")
+
+# GUIA DE COMPOSICION ANTI-DEFORMIDAD (2026-07-22, tras la critica de la audiencia sobre
+# manos deformes). El negative de manos ayuda pero NO es infalible; la mejor defensa es
+# COMPONER el plano para no exponer manos/dedos cuando no son el foco:
+#   - Preferir planos que NO muestren manos completas: el OBJETO en primer plano, la accion
+#     sugerida, siluetas, manos cortadas por el encuadre o en sombra/contraluz.
+#   - Si la mano ES el foco (ej. sostener el pistón), pedir "a single hand, seen from the side,
+#     partly in shadow" y pensar en generar 2-3 semillas y quedarse con la mejor (es $0).
+#   - Cero grupos de personas en plano medio (multiplican caras/manos rotas). Multitud = lejana,
+#     de espaldas o en silueta.
+# El validador de abajo AVISA cuando un prompt entra en zona de riesgo (pide manos/dedos/gente
+# de cerca) para que revises ESE still con lupa. No bloquea: solo marca.
+_RIESGO_MANOS = ("hand", "hands", "finger", "fingers", "fist", "grip", "gripping",
+                 "holding", "grasp", "palm", "thumb")
+_RIESGO_GENTE = ("face", "faces", "crowd", "people", "soldiers", "men", "group of",
+                 "portrait")
+
+
+def _tiene(termino: str, texto: str) -> bool:
+    """Match por palabra completa (evita 'men' dentro de 'docuMENtary', etc.)."""
+    return re.search(rf"\b{re.escape(termino)}\b", texto) is not None
+
+
+def _avisos_riesgo(indice: int, prompt: str) -> list[str]:
+    """Marca patrones que suelen salir deformes en SDXL, para revisar ese still con lupa."""
+    p = prompt.lower()
+    avisos = []
+    hits_m = sorted({t for t in _RIESGO_MANOS if _tiene(t, p)})
+    hits_g = sorted({t for t in _RIESGO_GENTE if _tiene(t, p)})
+    if hits_m:
+        avisos.append(f"  esc {indice:02d}: pide MANOS ({', '.join(hits_m)}) -> revisá dedos; "
+                      f"si no son el foco, reformulá a objeto/silueta/mano en sombra")
+    if hits_g:
+        avisos.append(f"  esc {indice:02d}: pide GENTE de cerca ({', '.join(hits_g)}) -> "
+                      f"revisá caras; multitud mejor lejana/de espaldas")
+    return avisos
 
 
 def main() -> None:
@@ -66,6 +103,13 @@ def main() -> None:
 
     w, h = (int(x) for x in args.wh.lower().split("x"))
     negativo = args.negativo or f"{NEGATIVO}, {NEG_ETNIA}"
+
+    # Aviso de zonas de riesgo (manos/gente de cerca) ANTES de gastar la corrida: te dice
+    # cuales stills mirar con lupa al bajarlos (regenerarlos es $0 en Kaggle). Ver guia arriba.
+    avisos = [a for i in indices for a in _avisos_riesgo(i, prompts[str(i)])]
+    if avisos:
+        print(">> ZONAS DE RIESGO DE DEFORMIDAD (revisá estos stills con lupa; regen = $0):")
+        print("\n".join(avisos))
 
     job = {
         "job_id": f"stills-{args.nombre}",

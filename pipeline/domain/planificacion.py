@@ -22,7 +22,17 @@ _ESTILO_PROMPT: dict[str, str] = {
     "historico": "cinematic historical photography, ancient world, dramatic volumetric light, "
                  "aged bronze and stone textures, museum documentary look, epic depth of field",
 }
-_NEGATIVO = "text, watermark, logo, lowres, blurry, deformed, extra limbs"
+# Negativo base. "deformed, extra limbs" solo NO alcanza contra el defecto #1 de
+# SDXL/SD: MANOS rotas (dedos fundidos/de mas/torcidos), que la audiencia notó y comentó
+# ("se ven deformes", 2026-07-22). Los terminos especificos de manos SI los respeta el
+# modelo. Ver [[manos-deformes-sdxl-y-fix-negativo]].
+_NEGATIVO = (
+    "text, watermark, signature, logo, lowres, blurry, "
+    "deformed, disfigured, extra limbs, "
+    "bad hands, mutated hands, malformed hands, poorly drawn hands, "
+    "extra fingers, fused fingers, missing fingers, too many fingers, "
+    "long fingers, twisted fingers, extra thumb, deformed hands"
+)
 
 # Stopwords ES para extraer palabras-tema sin dependencias de NLP.
 _STOPWORDS = {
