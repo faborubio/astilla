@@ -126,7 +126,47 @@ for esc in JOB["escenas"]:
 print("LISTO: clips animados generados")
 '''
 
-_TEMPLATES = {"imagen": _KERNEL_IMAGEN, "animatediff": _KERNEL_ANIMATEDIFF}
+# Plantilla del kernel SDXL (1 PNG por escena-still -> Ken Burns local, hibrido --video).
+# SDXL base 1.0 entra comodo en la T4 (fp16, ~7GB); estable y rapido (~15-25s/img).
+# Ventaja clave para la fidelidad de etnia/epoca: negative_prompt REAL (a diferencia de
+# LTX y de FLUX-schnell) -> se empuja "european/caucasian face, modern clothing" al negativo.
+# Los PNG se nombran still_NN.png: el flag --video de generar_ltx.py los busca ahi.
+_KERNEL_SDXL = '''\
+import os, json, subprocess, sys
+subprocess.run([sys.executable, "-m", "pip", "install", "-q", "-U",
+                "diffusers", "transformers", "accelerate", "safetensors"], check=True)
+import torch
+from diffusers import StableDiffusionXLPipeline, DPMSolverMultistepScheduler
+
+JOB = json.loads(r"""{job_json}""")
+g = JOB["generacion"]
+out_dir = "/kaggle/working"
+os.makedirs(out_dir, exist_ok=True)
+print("sdxl", JOB["job_id"], "| escenas:", len(JOB["escenas"]), "| neg:", JOB["negativo"][:60])
+
+pipe = StableDiffusionXLPipeline.from_pretrained(
+    g["modelo"], torch_dtype=torch.float16, use_safetensors=True, variant="fp16")
+pipe.scheduler = DPMSolverMultistepScheduler.from_config(pipe.scheduler.config)
+pipe.enable_vae_slicing()
+pipe = pipe.to("cuda")
+
+for esc in JOB["escenas"]:
+    dst = os.path.join(out_dir, esc["archivo"])
+    if os.path.exists(dst):
+        print("checkpoint, salto", esc["archivo"]); continue
+    gen = torch.Generator("cuda").manual_seed(int(esc["semilla"]))
+    img = pipe(esc["prompt"], negative_prompt=JOB["negativo"],
+               width=g["width"], height=g["height"],
+               num_inference_steps=g["steps"], guidance_scale=g["guidance"],
+               generator=gen).images[0]
+    img.save(dst)
+    print("ok", esc["archivo"], "::", esc["prompt"][:60])
+print("LISTO: stills SDXL generados")
+'''
+
+
+_TEMPLATES = {"imagen": _KERNEL_IMAGEN, "animatediff": _KERNEL_ANIMATEDIFF, "sdxl": _KERNEL_SDXL}
+_PATRON = {"animatediff": "escena_*.mp4", "imagen": "escena_*.png", "sdxl": "still_*.png"}
 
 
 def _slug(texto: str) -> str:
@@ -187,7 +227,7 @@ def generar_en_kaggle(
     usuario = _usuario_kaggle()
     slug = _slug(f"astilla-{motion}-{job['job_id']}")
     kid = f"{usuario}/{slug}"
-    patron = "escena_*.mp4" if motion == "animatediff" else "escena_*.png"
+    patron = _PATRON.get(motion, "escena_*.png")
 
     # 1) Armar el kernel (script + metadata) con el job embebido.
     dir_kernel.mkdir(parents=True, exist_ok=True)

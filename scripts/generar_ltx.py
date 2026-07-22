@@ -3,10 +3,16 @@
 # Folder-aware (jul 2026): con --nombre lee artifacts/shorts/<n>/visual_job.json y
 # escribe los clips en artifacts/shorts/<n>/clips/.
 #
-# Uso:  python scripts/generar_ltx.py --nombre arquero --indices todas --auto --pro
+# Uso:  python scripts/generar_ltx.py --nombre arquero --indices todas --auto        (fast, def)
+#       python scripts/generar_ltx.py --nombre arquero --indices todas --auto --pro
 #       python scripts/generar_ltx.py --job <ruta.json> --indices 0,3,7   (override)
+# Hibrido barato: solo estas escenas van a LTX-video; el resto son still+Ken Burns ($0):
+#       python scripts/generar_ltx.py --nombre arquero --indices todas --auto --video 0,4
+#       (requiere clips/still_NN.png para cada escena NO listada en --video)
 import argparse
+import base64
 import json
+import subprocess
 import sys
 import urllib.error
 import urllib.request
@@ -16,7 +22,87 @@ from prueba_ltx import leer_key
 from rutas import RutasShort
 
 API_URL = "https://api.ltx.video/v1/text-to-video"
+I2V_API_URL = "https://api.ltx.video/v1/image-to-video"
 MOVIMIENTO = "Slow cinematic camera push-in, subtle drifting particles, a single continuous shot."
+
+STILL_EXTS = (".png", ".jpg", ".jpeg", ".webp")
+
+
+def _still_src(clips_dir: Path, i: int):
+    """Imagen de la escena still, si existe (clips/still_NN.{png,jpg,...})."""
+    for ext in STILL_EXTS:
+        p = clips_dir / f"still_{i:02d}{ext}"
+        if p.exists():
+            return p
+    return None
+
+
+def _ken_burns(src: Path, dur: float, destino: Path,
+               w: int = 1080, h: int = 1920, fps: int = 30) -> None:
+    """Anima un still 9:16 con un push-in lento (Ken Burns), $0. Mismo lenguaje de
+    camara que los clips LTX (MOVIMIENTO: 'slow cinematic push-in') para que la mezcla
+    video+still no se note. El bed final (ambiente_bed_clips) reconforma fps/duracion."""
+    dur = max(0.5, float(dur))
+    frames = max(1, round(dur * fps))
+    zi = 0.12 / frames  # de 1.00 a ~1.12 a lo largo de la escena
+    vf = (
+        f"scale={w * 2}:{h * 2}:force_original_aspect_ratio=increase,"
+        f"crop={w * 2}:{h * 2},"
+        f"zoompan=z='min(zoom+{zi:.6f},1.12)':d={frames}:"
+        f"x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':"
+        f"s={w}x{h}:fps={fps},setsar=1,format=yuv420p"
+    )
+    subprocess.run(
+        ["ffmpeg", "-y", "-v", "error", "-i", str(src),
+         "-vf", vf, "-frames:v", str(frames),
+         "-c:v", "libx264", "-preset", "veryfast", "-crf", "18",
+         "-pix_fmt", "yuv420p", str(destino)],
+        check=True,
+    )
+
+
+def _subir_temporal(imagen: Path) -> str:
+    """Sube la imagen a litterbox (expira 1h) si la API rechaza el data URI. Devuelve la URL."""
+    out = subprocess.run(
+        ["curl", "-s", "-F", "reqtype=fileupload", "-F", "time=1h",
+         "-F", f"fileToUpload=@{imagen}",
+         "https://litterbox.catbox.moe/resources/internals/api.php"],
+        capture_output=True, text=True, check=True,
+    ).stdout.strip()
+    if not out.startswith("http"):
+        sys.exit(f"litterbox fallo: {out!r}")
+    return out
+
+
+def _i2v(still: Path, prompt: str, dur: int, modelo: str, key: str, destino: Path) -> None:
+    """Image-to-video: LTX anima el still (frame 0) -> ancla el contenido, el prompt guia el
+    movimiento. Intenta data URI; si la API lo rechaza (400/413/422), sube a litterbox y reintenta.
+    Validado en scripts/prueba_ltx_i2v.py (campo image_uri)."""
+    ext = (still.suffix.lstrip(".").lower() or "png")
+    mime = "jpeg" if ext in ("jpg", "jpeg") else ext
+    b64 = base64.b64encode(still.read_bytes()).decode("ascii")
+    base = {"prompt": prompt, "model": modelo, "duration": dur,
+            "resolution": "1080x1920", "generate_audio": False}
+
+    def _post(cuerpo: dict) -> bytes:
+        req = urllib.request.Request(
+            I2V_API_URL, data=json.dumps(cuerpo).encode("utf-8"),
+            headers={"Authorization": f"Bearer {key}", "Content-Type": "application/json"},
+            method="POST")
+        with urllib.request.urlopen(req, timeout=600) as resp:
+            return resp.read()
+
+    try:
+        datos = _post({**base, "image_uri": f"data:image/{mime};base64,{b64}"})
+    except urllib.error.HTTPError as e:
+        if e.code not in (400, 413, 422):
+            sys.exit(f"i2v HTTP {e.code}: {e.read().decode('utf-8', 'replace')}")
+        url = _subir_temporal(still)
+        try:
+            datos = _post({**base, "image_uri": url})
+        except urllib.error.HTTPError as e2:
+            sys.exit(f"i2v HTTP {e2.code}: {e2.read().decode('utf-8', 'replace')}")
+    destino.write_bytes(datos)
 
 
 def main() -> None:
@@ -29,6 +115,14 @@ def main() -> None:
     ap.add_argument("--nombre", default=None, help="short (def: artifacts/shorts/<n>/)")
     ap.add_argument("--job", type=Path, default=None, help="override del visual_job.json")
     ap.add_argument("--clips-dir", type=Path, default=None, help="override del destino de clips")
+    ap.add_argument("--video", default=None,
+                    help="indices que van a LTX-video (pagos); el resto de --indices se "
+                         "renderiza como still+Ken Burns local ($0). Requiere clips/still_NN.png. "
+                         "Omitido = todas van a video (comportamiento clasico).")
+    ap.add_argument("--i2v", default=None,
+                    help="indices que van a IMAGE-TO-VIDEO desde clips/still_NN.png: LTX anima ese "
+                         "still (ancla el contenido; ideal cuando el still es fiel y t2v deriva). "
+                         "Mismo costo que t2v. Requiere el PNG. Prioridad sobre --video.")
     args = ap.parse_args()
 
     if not args.nombre and not args.job:
@@ -52,17 +146,57 @@ def main() -> None:
         d = math.ceil(beat)
         return min(10, max(4, d + (d % 2)))
 
+    destino_dir = dest_dir
+    destino_dir.mkdir(parents=True, exist_ok=True)
+
+    # Particion i2v / video(t2v) / still. Prioridad: i2v > video > Ken Burns.
+    pedidos_i = set() if args.i2v is None else {
+        int(x) for x in args.i2v.split(",") if x.strip() != ""}
+    i2v_idx = [i for i in indices if i in pedidos_i]
+    if args.video is None:  # clasico: lo que no es i2v va a t2v
+        video_idx = [i for i in indices if i not in pedidos_i]
+    else:
+        pedidos_v = {int(x) for x in args.video.split(",") if x.strip() != ""}
+        video_idx = [i for i in indices if i in pedidos_v and i not in pedidos_i]
+    still_idx = [i for i in indices if i not in video_idx and i not in i2v_idx]
+
+    # Stills e i2v necesitan su PNG en clips/still_NN.png (Kaggle SDXL / Flux / etc.).
+    faltan_png = [i for i in (still_idx + i2v_idx) if _still_src(destino_dir, i) is None]
+    if faltan_png:
+        sys.exit(
+            "faltan imagenes (still/i2v): "
+            + ", ".join(f"still_{i:02d}.png" for i in faltan_png)
+            + f"\n  (ponlas en {destino_dir}/ ; formatos: {', '.join(STILL_EXTS)})"
+        )
+
     duraciones = {
         i: (_dur_valida(escenas[i]["fin_s"] - escenas[i]["inicio_s"])
             if args.auto else args.duracion)
-        for i in indices
+        for i in (video_idx + i2v_idx)
     }
-    destino_dir = dest_dir
-    destino_dir.mkdir(parents=True, exist_ok=True)
-    total_s = sum(duraciones.values())
-    print(f">> {len(indices)} escenas, {total_s}s total, {modelo} (~${tarifa * total_s:.2f})")
+    s_video = sum(duraciones[i] for i in video_idx)
+    s_i2v = sum(duraciones[i] for i in i2v_idx)
+    print(f">> t2v: {len(video_idx)} esc/{s_video}s  |  i2v: {len(i2v_idx)} esc/{s_i2v}s  "
+          f"|  {modelo} (~${tarifa * (s_video + s_i2v):.2f})  |  "
+          f"still Ken Burns: {len(still_idx)} ($0)")
 
-    for i in indices:
+    # 1) Stills primero (baratos, ya validados): still+Ken Burns -> escena_NN.mp4
+    for i in still_idx:
+        src = _still_src(destino_dir, i)
+        beat = escenas[i]["fin_s"] - escenas[i]["inicio_s"]
+        destino = destino_dir / f"escena_{i:02d}.mp4"
+        _ken_burns(src, beat, destino)
+        print(f"OK escena {i:02d} (still Ken Burns {beat:.1f}s) -> {destino}")
+
+    # 1b) i2v: LTX anima el still fiel (ancla el contenido) -> escena_NN.mp4
+    for i in i2v_idx:
+        src = _still_src(destino_dir, i)
+        destino = destino_dir / f"escena_{i:02d}.mp4"
+        _i2v(src, f"{escenas[i]['prompt']} {MOVIMIENTO}", duraciones[i], modelo, key, destino)
+        print(f"OK escena {i:02d} (i2v desde {src.name}, {duraciones[i]}s) -> {destino}")
+
+    # 2) Escenas de video via LTX API
+    for i in video_idx:
         destino = destino_dir / f"escena_{i:02d}.mp4"
         cuerpo = {
             "prompt": f"{escenas[i]['prompt']} {MOVIMIENTO}",

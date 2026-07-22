@@ -6,6 +6,7 @@
 > Bitácora cronológica: [`MEMORY.md`](./MEMORY.md) · Casos demostrables: [`docs/CASES.md`](./docs/CASES.md)
 > Deuda aceptada: [`docs/AUDIT.md`](./docs/AUDIT.md) · Incidentes/gotchas: [`docs/TROUBLESHOOTING.md`](./docs/TROUBLESHOOTING.md) · Parking lot: [`IDEAS.md`](./IDEAS.md)
 > Estado de producción (abrir con file://): [`docs/panel_produccion.html`](./docs/panel_produccion.html) · regenerar con `python scripts/generar_panel.py`
+> Reparto video/still por short (plan de costos LTX): [`docs/reparto_video_still.md`](./docs/reparto_video_still.md)
 > Pendientes: **`## Próxima sesión` al final de este doc** (nombre estable del Método).
 
 ## Qué es
@@ -21,18 +22,41 @@ Hoy tiene **dos modos** (mismo pipeline, solo cambia la fuente):
 
 ---
 
-## ⏭️ Estado (2026-07-21)
+## ⏭️ Estado (2026-07-22)
 
-**Estado:** 🎉 **10 SHORTS PUBLICADOS**. El motor produce shorts end-to-end por ~$3-4 c/u (LTX
-**pro**). Publicados: Anticitera v2 (**youtube.com/shorts/caRNsgvRorc**), telégrafo
+**Estado:** 🎉 **13 PUBLICADOS + 2 EN PAUSA (descartados por calidad)**. El motor produce shorts por
+**~$0.7 c/u** (flujo híbrido: fast + stills SDXL gratis + i2v), no $3-4, PERO tiene una falencia de
+calidad confirmada (ver abajo). Publicados: Anticitera v2 (**youtube.com/shorts/caRNsgvRorc**), telégrafo
 (**youtube.com/shorts/YWyjv3tG4SA**), pelo/catapultas (**youtube.com/shorts/xQJHJD4XJFI**), arquero,
-trepanacion, cerebro_vidrio, hormigon + **la tanda nueva quipus / lautaro / cruce_andes** (recién
-subidos 2026-07-21; sin métricas todavía). **No hay tanda terminada sin publicar.**
+trepanacion, cerebro_vidrio, hormigon, quipus, lautaro, cruce_andes, chuno + **piston_fuego** y
+**sismografo** (subidos por Fabián el 2026-07-22).
 
-**⛔ SALDO LTX AGOTADO (2026-07-21, ~$0.65):** la tanda de 4 gastó ~$14.88 y el saldo se acabó a mitad
-de **chuno**, que quedó **bloqueado en 3/9 clips** (los 3 guardados). Se completa SOLO con los 6 que
-faltan cuando se recargue: `python scripts/generar_ltx.py --nombre chuno --indices 3,4,5,6,7,8 --auto
---pro` (~$2.6) → luego armar_short + música. Estado visible en el **panel** `docs/panel_produccion.html`.
+**⏸️ `manavai` y `pisagua` EN PAUSA (2026-07-22):** de la tanda de 4, Fabián publicó solo `piston_fuego`
+y `sismografo`. **Los otros dos NO le gustaron → quedan en pausa por ahora** (no descartar el guion, sí
+el render actual). Tienen `short_musica.mp4` pero no se suben. Se retoman cuando el pipeline mejore la
+fidelidad visual (son justo los de referencias Rapa Nui / Guerra del Pacífico).
+
+**🗣️ CRÍTICA DE LA AUDIENCIA (2026-07-22) — el problema #1 a resolver:** en los publicados de anoche
+llegaron **comentarios con crítica constructiva sobre clips que no tienen nada que ver con lo narrado**.
+Esto CONFIRMA desde afuera la deuda visual que ya veíamos internamente: LTX (t2v) deriva del contenido
+del guion (etnia/época/objeto equivocado, escenas genéricas que no ilustran el mecanismo). **El flujo es
+barato pero la relación imagen↔narración falla** → es la próxima pieza a arreglar del pipeline, no un
+detalle cosmético. Ver [[fidelidad-visual-ltx-etnia-epoca]], [[referencias-y-i2v-para-fidelidad]].
+
+**💰 FLUJO HÍBRIDO — la gran palanca de costo (2026-07-21/22):** de ~$3-4/short (pro, todo-video) a
+**~$0.7/short**. Tres decisiones: (a) **fast por default** (no `--pro`; A/B lo probó: igual/más on-brand,
+−33%, y como la API no fija semilla sacás 2 tiros por el precio de 1 pro); (b) **stills SDXL gratis en
+Kaggle** para las escenas estáticas (`scripts/generar_stills_kaggle.py`, kernel `sdxl` en `ejecutor_kaggle.py`)
+animadas con Ken Burns local, y LTX-video solo en las escenas con movimiento (`generar_ltx.py --video`);
+(c) **i2v** (`generar_ltx.py --i2v`) para anclar el video a un still fiel cuando t2v deriva. Reparto
+video/still por short en [`docs/reparto_video_still.md`](./docs/reparto_video_still.md).
+
+**🎯 FIDELIDAD POR REFERENCIAS (2026-07-22):** para temas específicos (Rapa Nui, Guerra del Pacífico),
+Fabián pasa **fotos de referencia** → Claude extrae los detalles al prompt (**Nivel 1**) + **i2v** ancla el
+video a un still fiel (**Nivel 2**). Corrigió manavai (manavai reales = anillo BAJO de basalto oscuro, no
+torres/vidrio) y pisagua (uniforme chileno 1879 **azul+rojo+kepí**, buques a vapor, desierto del Atacama;
+adiós casco de acero/veleros). Es el fix definitivo de [[fidelidad-visual-ltx-etnia-epoca]]. Ver
+[[referencias-y-i2v-para-fidelidad]].
 
 **🖼️ DEUDA VISUAL (espera crédito):** Fabián notó que varios clips de la tanda **no son verídicos
 para la época / la etnia de las personas está equivocada** (LTX mete caras europeas/anacronismos pese
@@ -112,7 +136,8 @@ sombrero) se descartó por estar pegado al tema saturado del moái. Ver [[estrat
 
 **📁 ESTRUCTURA (folder-aware desde jul 2026): un short = una carpeta `artifacts/shorts/<n>/`**
 con nombres FIJOS: `voz.wav`, `guion.txt`, `prompts.json`, `segmentos.json`, `visual_job.json`,
-`palabras.json`, `subs.ass`, `bed.mp4`, `clips/escena_NN.mp4`, `short.mp4`, `short_musica.mp4`.
+`palabras.json`, `subs.ass`, `bed.mp4`, `clips/still_NN.png` (stills SDXL) + `clips/escena_NN.mp4`
+(Ken Burns o video/i2v), `short.mp4`, `short_musica.mp4`.
 Compartidos en la raíz `artifacts/`: `bd.rnnn`, `musica_lightless_dawn.mp3`, `guiones.md` (maestro:
 título + hashtags + guion de todos los shorts). Lo viejo (telegrafo, pelo, anticitera, historia, hablante, luma) en `artifacts/_legacy/`.
 Todos los scripts toman `--nombre <n>` y resuelven las rutas solas (`scripts/rutas.py::RutasShort`).
@@ -137,11 +162,19 @@ otro short).
    re-transcripción (siguen siendo checkpoints, pero ahora aislados por carpeta).
 4. Claude escribe los prompts pictóricos por escena EN SESIÓN → `shorts/<n>/prompts.json` (ancla de
    estilo compartida = *painterly oil painting, teal+amber, chiaroscuro, 9:16*; incluir un plano
-   explainer tipo diagrama Da Vinci en la escena larga). Inyectarlos en `visual_job.json` (o re-correr
-   animado con `--prompts-file`) los hornea.
-5. `python scripts/generar_ltx.py --nombre <n> --indices todas --auto --pro` → clips en
-   `shorts/<n>/clips/` (~$3-4 según duración del audio; cap 10s/clip; **el costo lo fija la duración
-   del audio, no la cantidad de escenas**).
+   explainer tipo diagrama Da Vinci). **Para stills SDXL: estilo al FRENTE** (si no, SDXL deriva a foto)
+   y etnia/época en afirmativo. **Tema específico/local → pedir REFERENCIAS a Fabián** y sacar los
+   detalles exactos al prompt ([[referencias-y-i2v-para-fidelidad]]). Inyectar en `visual_job.json`.
+4b. **Stills gratis (Kaggle SDXL, $0):** `python scripts/generar_stills_kaggle.py --nombre <n> --indices
+   <estáticas>` → `clips/still_NN.png`. El negativo por defecto mata foto/etnia/anacronismo; `--negativo`
+   lo override (ej. anti "torre/vidrio", anti "casco/velero", anti "todo rojo"). **Revisar por frame y
+   regenerar los que fallen (gratis).**
+5. **Video LTX-fast** (paga SOLO las escenas con movimiento): `python scripts/generar_ltx.py --nombre <n>
+   --indices todas --auto --video "<i,j>"` → `clips/escena_NN.mp4` (**fast = $0.04/s**, NO `--pro`; las
+   NO listadas en `--video` = Ken Burns local $0 desde `still_NN.png`). Para escenas donde t2v deriva
+   (uniforme/época/objeto específico), **`--i2v "<i,j>"`** anima un still fiel → ancla el contenido, LTX
+   solo agrega movimiento (generar antes ese `still_NN.png`). Reparto por short: `docs/reparto_video_still.md`.
+   Ver [[ltx-fast-vs-pro-y-hibrido-stills]], [[referencias-y-i2v-para-fidelidad]].
 6. `python scripts/armar_short.py --nombre <n> --semilla N` (transcribe por palabra,
    **reconcilia con el guion-verdad**, karaoke MÍNIMO, bed, quema). Todo se resuelve de la carpeta.
 7. **Retimeo alineado al contenido (GOTCHA 13):** mirar `shorts/<n>/palabras.json`, elegir 1 corte por
@@ -171,6 +204,7 @@ otro short).
 | CASO-010 | **LTX-2.3 API** (video generativo CON API, $0.04/s): t2v + i2v, 9:16 por parámetro, prompts pictóricos por Claude en sesión. Short v2 publicado | ✅ `scripts/generar_ltx.py` + `armar_short_v2.py`; ver [[ltx-api-validada]] |
 | CASO-011 | **Circuito de producción formalizado** (tanda telégrafo/pelo): `limpiar_voz.py`, `armar_short.py` (parametrizado, reconcilia guion↔timing), `reconciliar_palabras.py`, `retimear_bed.py`. Bug de `transcribir_palabras` arreglado. 2 shorts terminados | ✅ ver [[produccion-tanda-telegrafo-pelo]] (gotchas 11-13) |
 | CASO-012 | **Refactor folder-aware + tanda de 4** (arquero/trepanacion/cerebro_vidrio/hormigon): un short = una carpeta `artifacts/shorts/<n>/`, scripts con `--nombre` (`scripts/rutas.py`). Fix transcripción (vad+guion truncaba/alucinaba). Repeticiones al grabar → corte manual del wav. **Gotcha 11 muerto** | ✅ 4 shorts terminados; ver [[refactor-folder-aware-y-fix-transcripcion]] |
+| CASO-013 | **Flujo híbrido barato + fidelidad (~$0.7/short)**: fast por default (no `--pro`); **stills SDXL gratis en Kaggle** (`generar_stills_kaggle.py` + kernel `sdxl`) con Ken Burns local, LTX-video solo en escenas con movimiento (`--video`); **i2v** (`--i2v`) ancla el video a un still fiel. Referencias de Fabián → prompt preciso + i2v. Tanda de 4 (piston_fuego/manavai/sismografo/pisagua) terminada | ✅ ver [[ltx-fast-vs-pro-y-hibrido-stills]], [[referencias-y-i2v-para-fidelidad]] |
 
 **LUMA (H-2 concretado, jul 2026):** `ambiente_clips_ffmpeg.ambiente_bed_clips` = adaptador de
 ambiente por CLIPS de video (hermano de `ambiente_bed`/Ken Burns). Ajusta clips de ~5s al beat de
@@ -279,8 +313,10 @@ python -m pipeline.animado --nombre <n> --audio artifacts/shorts/<n>/voz.wav \
     --evidencia "Guion y voz propios (contenido original)" --estilo historico \
     --modelo medium --semilla N --stub-visual
 # 3) Claude escribe shorts/<n>/prompts.json e inyecta en visual_job.json
-# 4) clips LTX -> shorts/<n>/clips/   (~$3-4)
-python scripts/generar_ltx.py --nombre <n> --indices todas --auto --pro
+# 4) clips LTX -> shorts/<n>/clips/   (fast por default, $0.04/s; NO usar --pro)
+python scripts/generar_ltx.py --nombre <n> --indices todas --auto
+#    híbrido barato: solo estas escenas van a video, el resto still+Ken Burns ($0, needs clips/still_NN.png)
+#    python scripts/generar_ltx.py --nombre <n> --indices todas --auto --video 0,4
 # 5) armar (palabras + karaoke + bed + quema) -> shorts/<n>/short.mp4
 python scripts/armar_short.py --nombre <n> --semilla N
 # 6) retimeo alineado al contenido (mirar shorts/<n>/palabras.json)
@@ -353,22 +389,31 @@ tramo persiguiendo píxeles. No repetir.
 
 > Pendientes en orden de valor. **(Fabián)** = espera acción o decisión del autor.
 
-1. **(Fabián) RECARGAR SALDO LTX** — destraba DOS cosas de una: (a) **completar chuno**
-   (`generar_ltx.py --nombre chuno --indices 3,4,5,6,7,8 --auto --pro` → armar_short + música), y
-   (b) **refinar los clips de etnia/época equivocada** (regen targeted, [[fidelidad-visual-ltx-etnia-epoca]]).
-   Ambas están bloqueadas por saldo ($0.65). Ver panel `docs/panel_produccion.html`.
-2. **(Fabián) GRABAR lo que queda del banco:** `manavai` (mecanismo Isla de Pascua, guion listo) →
-   `pisagua` (último y controlado por flame, §2). `quipus`/`lautaro`/`cruce_andes` **ya publicados**;
-   `moais` en pausa (saturado). Guiones (título + hashtags + **descripción** + texto) en el maestro
-   `artifacts/guiones.md`; leé de ahí. Al grabar, si te trabás **pausá 1-2s antes de repetir**. Después:
-   pipeline folder-aware (§Estado → circuito, arranca por `exportar_guion.py`).
-3. **Watchear métricas** de los 10 publicados, sobre todo los **3 nuevos** (quipus/lautaro/cruce_andes,
-   subidos 2026-07-21 → 2-3 sem de datos ruidosos por la reeducación del algoritmo, no sacar conclusiones
-   de un short suelto). Métrica primaria = **% visto/retención**. Cargar los números en `docs/panel_datos.json`
-   y regenerar el panel. Antes del próximo tema, **chequear saturación** (lección hormigón, §7). Gap de
-   **0 comentarios**: esta tanda estrenó **comentario-semilla fijado + descripción** para atacarlo.
-4. **(Fabián) Branding de Vestigios:** foto de perfil (emblema de engranaje) + banner. Ocultar
+1. **🔧 ARREGLAR LA FIDELIDAD VISUAL DEL PIPELINE (foco #1, valida crítica de audiencia).** Los
+   comentarios del 2026-07-22 confirman que **los clips no ilustran lo narrado** (LTX t2v deriva de
+   etnia/época/objeto/mecanismo). `manavai` y `pisagua` quedaron en pausa por esto. El flujo es barato
+   pero la relación imagen↔narración es la falencia. Líneas a atacar (ver [[fidelidad-visual-ltx-etnia-epoca]],
+   [[referencias-y-i2v-para-fidelidad]]): (a) **inclinar la balanza a still SDXL + i2v** (negativo real →
+   controla etnia/época) y bajar el t2v puro, que es el que más deriva; (b) **reforzar el prompt** con
+   etnia+época explícitas+negativos y **plano-explainer** que muestre el mecanismo (el benchmark de 8M lo
+   pide); (c) **regen targeted** de los clips ofensivos, no del short entero. Definir esto ANTES de seguir
+   grabando temas nuevos — no tiene sentido acumular shorts con el mismo defecto.
+2. **(Fabián, cuando el pipeline mejore) Retomar `manavai` y `pisagua`** — guion y voz ya están; solo
+   falta re-renderizar los clips con el flujo corregido. Título/hashtags/descripción en `artifacts/guiones.md`
+   (secciones 11, 13). Activar el toggle de **"contenido alterado o sintético"** (divulgación de IA).
+3. **(Fabián) Banco por grabar (esperar al fix #1):** `agua_rapanui` (2ª de Isla de Pascua, guion #14
+   listo — **no publicar pegado a manavai**). Idea nueva con saturación baja ya chequeada: **Q'eswachaka**
+   (puentes de paja incas) — falta escribir el guion. `moais` en pausa (saturado). Al grabar: **pausá 1-2s
+   antes de repetir**; después el circuito híbrido (§Estado → circuito). **Para temas específicos/históricos
+   tené fotos de referencia a mano** (Nivel 1 prompt + Nivel 2 i2v, [[referencias-y-i2v-para-fidelidad]]).
+4. **Watchear métricas** de los publicados (13 con piston_fuego/sismografo). Los de 2026-07-21
+   (quipus/lautaro/cruce_andes/chuno) siguen en ventana ruidosa de reeducación (no concluir de un short
+   suelto). Métrica primaria = **% visto/retención** — el informe **"Rendimiento en las primeras 24h"**
+   en **Modo Avanzado** da la tabla por video (**>100% = loopea, buscá eso**). Cargar en
+   `docs/panel_datos.json` + regenerar panel. **Chequear saturación** antes del próximo tema.
+   **Además: leer los comentarios** — ya dieron la señal más accionable (clips que no pegan).
+5. **(Fabián) Branding de Vestigios:** foto de perfil (emblema de engranaje) + banner. Ocultar
    (unlisted) los videos viejos de música para limpiar la señal del canal.
-5. **Deuda técnica** — ahora numerada en [`docs/AUDIT.md`](./docs/AUDIT.md): AUD-002 (generalizar
-   el retimeo dentro de `armar_short.py`), AUD-003 (formalizar `ejecutor_ltx.py` tras el
-   `PuertoEjecutor`), AUD-004 (revisar saldo LTX en el dashboard; la tanda de 4 costó ~$14 pro).
+6. **Deuda técnica** — en [`docs/AUDIT.md`](./docs/AUDIT.md): AUD-002 (generalizar el retimeo dentro de
+   `armar_short.py`), AUD-003 (formalizar `ejecutor_ltx.py`/`generar_stills_kaggle` tras el `PuertoEjecutor`),
+   AUD-004 (saldo LTX en el dashboard; la **tanda híbrida de 4 costó ~$2.7**, no ~$14 como en pro).

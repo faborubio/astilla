@@ -277,6 +277,37 @@ Ver [[refactor-folder-aware-y-fix-transcripcion]].
 
 ---
 
+## CASO-013 · Flujo híbrido barato + fidelidad por referencias (~$0.7/short)
+
+**Fecha:** 2026-07-21/22 · **Estado:** ✅ 4 shorts terminados (piston_fuego, manavai, sismografo, pisagua)
+
+### Qué demuestra
+El costo por short baja de ~$3-4 (pro, todo-video) a **~$0.7** sin perder calidad, con tres palancas:
+1. **fast por default** (no `--pro`): A/B mostró que `fast` ($0.04/s) sale igual o **más on-brand** que
+   `pro` ($0.06/s) para el estilo painterly; y como la API **no fija semilla**, con fast sacás 2 tiros
+   por el precio de 1 pro (mejor selección). −33%.
+2. **Stills SDXL gratis en Kaggle** (`scripts/generar_stills_kaggle.py` + kernel `sdxl` en
+   `ejecutor_kaggle.py`): las escenas estáticas se ilustran gratis y se animan con Ken Burns local; LTX
+   -video paga SOLO las escenas con movimiento (`generar_ltx.py --video "i,j"`). Un short 9-esc con 2-3
+   de video ≈ $0.5-1. SDXL tiene **negative_prompt real** (LTX no) → control de etnia/época/anacronismo.
+3. **i2v** (`generar_ltx.py --i2v "i,j"`, endpoint `image-to-video`, campo `image_uri`): anima un still
+   FIEL como frame 0 → LTX no puede re-inventar el contenido, solo agrega movimiento. Mató el casco de
+   acero y los veleros que t2v metía en pisagua.
+
+### Fidelidad por referencias (lección clave)
+Para temas específicos/locales (Rapa Nui, Guerra del Pacífico) SDXL/LTX derivan a genérico. **Fabián
+(chileno) pasa fotos de referencia** → Claude extrae los detalles al prompt (**Nivel 1**) + **i2v** ancla
+el video (**Nivel 2**). Correcciones reales: manavai = anillo BAJO de basalto oscuro sobre pastizal sin
+árboles (no torres/vidrio); pisagua = uniforme chileno 1879 **azul+rojo+kepí**, buques a vapor, desierto
+del Atacama. Gotcha: repetir "red" muchas veces → SDXL pinta al soldado TODO rojo (balancear + negativo).
+
+### Método de trabajo
+Generar stills → **revisar por frame** → regenerar gratis los que fallen → recién ahí pagar el video.
+Reparto video/still por short en `docs/reparto_video_still.md`. Ver [[ltx-fast-vs-pro-y-hibrido-stills]],
+[[referencias-y-i2v-para-fidelidad]].
+
+---
+
 ## Próximos casos (roadmap)
 - **CASO-007** — reanudación tras desconexión: matar el proceso y retomar (ADR-002).
 - **CASO-008** — capa MCP: "generá 3 shorts de este episodio, estilo cómic".
