@@ -84,6 +84,39 @@
   límites de frase) y reconstruir el bed con `scripts/retimear_bed.py --cortes "a,b; b,c; …"`
   (los clips se re-ajustan con `setpts`, no se regeneran). Generalizarlo es AUD-002.
 
+### G-14 · `exportar_guion.py` toma la versión EQUIVOCADA si hay v2 + viral en la sección
+- **Síntoma:** un short con dos versiones de guion bajo la misma sección `## N)` (la v2 "museo"
+  y una `### 🧪 VERSIÓN VIRAL` para A/B). `exportar_guion.py` corta el cuerpo en el primer header
+  `#{1,6}` (incluye `###`), así que exporta la v2 y **ignora la viral** → el `guion.txt` no coincide
+  con el audio que grabaste (la transcripción por palabra se desalinea). Detectado en mortero_bizantino.
+- **Fix aplicado (jul 2026):** para ese short, escribir `guion.txt` a mano con el texto de la versión
+  grabada (el pipeline consume `guion.txt`, es fuente válida). Regla: **1 sección = 1 guion hablado**.
+  Si necesitás A/B, dejá el texto ALTERNATIVO en un blockquote `>` o en otra sección, no como cuerpo
+  suelto bajo un `###` dentro de la misma sección. (Mejora futura: que el exportador tome la versión
+  marcada, o que ignore sub-headers `###` y una sola de las variantes.)
+
+### G-15 · El validador anti-deformidad marca "no people"/"no hands" como riesgo (falso positivo)
+- **Síntoma:** `generar_stills_kaggle.py::_avisos_riesgo` matchea `people`/`hands` por palabra pero
+  NO distingue la negación: un prompt con "no people" o "no hands visible" (que es lo correcto, evita
+  el riesgo) se marca igual como zona de riesgo.
+- **Fix / lectura:** es solo un AVISO, no bloquea. Al revisar, si el hit viene de una negación
+  ("no people", "no hands visible"), ignoralo. (Mejora futura: detectar el patrón `no\s+(people|hands|
+  faces)` y no marcarlo, o distinguir positivo/negativo.) El gate real sigue siendo mirar el still.
+
+### G-16 · `generar_ltx.py --i2v X` SIN `--video` pagaba t2v ciego para el resto (¡$3 de más!)
+- **Síntoma:** correr `generar_ltx.py --nombre <n> --indices todas --auto --i2v 3,6` esperando "los
+  money shots 3,6 a i2v y el resto Ken Burns ($0)" → en cambio mandó las 10 escenas restantes a **t2v
+  CIEGO** y **pagó ~$2.96** de LTX (ltx-2-3-fast). Peor: esos 10 clips t2v ignoran los stills fieles
+  revisados → derivan (uno metió una torre de alta tensión en escena bizantina; otros salieron
+  fotorrealistas rompiendo la estética óleo). Se tiró el trabajo del gate visual. Detectado en
+  mortero_bizantino (2026-07-22). El aviso "van a t2v CIEGO teniendo still" saltó, pero el flag no lo evitó.
+- **Causa:** el default `if args.video is None:` mandaba TODO lo no-i2v a `video_idx` (t2v), el
+  comportamiento "clásico" viejo — contradecía la política i2v-por-defecto que ya estaba documentada.
+- **Fix aplicado (jul 2026):** SIN `--video`, lo no-i2v va a t2v **solo si NO tiene still fiel**; si
+  tiene `still_NN.png`, va a Ken Burns local ($0). Así el default es seguro y coherente con la política.
+  Para forzar t2v teniendo still, listalo explícito en `--video`. **Al re-correr: borrar los clips t2v
+  malos (conservar los escena_NN.mp4 de i2v ya buenos) y volver a correr** — reusa los i2v, no re-paga.
+
 ---
 
 ## Incidentes por área

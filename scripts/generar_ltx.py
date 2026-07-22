@@ -168,8 +168,14 @@ def main() -> None:
 
     pedidos_i = _sel(args.i2v)
     i2v_idx = [i for i in indices if i in pedidos_i]
-    if args.video is None:  # clasico: lo que no es i2v va a t2v
-        video_idx = [i for i in indices if i not in pedidos_i]
+    if args.video is None:
+        # DEFAULT SEGURO (politica i2v-por-defecto, 2026-07-22): SIN --video, lo que no es
+        # i2v va a Ken Burns local ($0) SI tiene su still fiel; solo va a t2v CIEGO (paga) la
+        # escena que NO tiene still (unica opcion). Antes el default mandaba TODO a t2v aunque
+        # hubiera stills -> pagaba de mas y tiraba la fidelidad revisada (bug detectado en
+        # mortero_bizantino). Para forzar t2v teniendo still, listalo explicito en --video.
+        video_idx = [i for i in indices
+                     if i not in pedidos_i and _still_src(destino_dir, i) is None]
     else:
         pedidos_v = _sel(args.video)
         video_idx = [i for i in indices if i in pedidos_v and i not in pedidos_i]
