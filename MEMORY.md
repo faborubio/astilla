@@ -49,8 +49,34 @@ no publicadas, la decisión es humana (§3.3) y se registra honestamente en el r
 limpias para testear: dominio público (LibriVox/archive.org `language:spa`) o audio propio.
 No procesar reels de IG de terceros para publicar.
 
-## Próximo paso sugerido
+> ⚠️ La bitácora cronológica detallada de jul 2026 en adelante vive en las **memorias de sesión**
+> (`.claude/.../memory/`, indexadas en su propio `MEMORY.md`), no acá. Este archivo guarda solo los
+> hitos gruesos. Estado siempre actualizado en [`CLAUDE.md`](./CLAUDE.md).
 
-**CASO-006 (IP-Adapter / imagen de referencia)** — el cierre real de H-1: fijar una imagen
-de personaje y pasarla a todas las escenas para mantener identidad entre ellas. Alternativa:
-correr un AnimateDiff completo (sin límite de 12s) sobre fuente real con `--prompts-llm`.
+## 2026-07-22/23 — Salto de calidad visual: pivot a ChatGPT + gates de calidad
+
+El canal (VESTIGIOS) llegó a **14 publicados**; el mortero bizantino
+(youtube.com/shorts/hm-JIzAQM_4) fue el primero de la serie «Ingenios Olvidados» con el pipeline
+de calidad completo, y `piedra_solar` quedó lista para subir. Tres cambios grandes esta tanda:
+
+1. **Generador de stills: SDXL → ChatGPT (GPT-image).** Tras la crítica pública ("ilustraciones
+   deformes / algunas sin sentido") y 3-4 rondas fallidas regenerando en SDXL, generar en ChatGPT
+   resolvió a la primera los 3 puntos ciegos (manos, caras, líquidos, escenas que ignoran el prompt).
+   Look fijo = óleo pictórico. Flujo human-in-the-loop: Claude prepara kit de prompts en español
+   (`shorts/<n>/prompts_chatgpt.md`), Fabián genera y revisa, Claude mapea por contenido. SDXL/Kaggle
+   queda de respaldo. Es la decisión de "calidad sobre automatización total".
+
+2. **Dos gates de calidad nuevos, reglas duras:** (a) **gate de revisión de stills** — Fabián revisa
+   frame a frame antes de armar, Claude hace segunda pasada, comparan; (b) **gate de fuentes** — cada
+   guion lleva línea `Fuente:` verificada antes de grabar (destapó que el dato del huevo del mortero,
+   la ceniza de la katana y el arsénico del papel eran mitos virales de la pestaña Inspiración de
+   YouTube; se reencuadraron con el mecanismo real).
+
+3. **Fórmula v3 + banco verificado 16-33 en cola** (~1 mes de contenido) en el único `guiones.md`:
+   hook-misterio, sin tríada, cierre-loop, voz propia, ~150-175 palabras + "pastilla la próxima"
+   (tease separado) + guiño visual del próximo short en la última escena. Series «Ingenios Olvidados»
+   (mundo) y «Mecanismos de América».
+
+**Gotcha caro (G-16, arreglado):** `generar_ltx.py --i2v X` sin `--video` pagaba t2v ciego (~$4
+quemados). Default corregido + regla: confirmar costo antes de gastar LTX (saldo ~$1). El pipeline
+de imagen ya casi no usa LTX (Ken Burns local $0 + i2v solo en money shots puntuales).

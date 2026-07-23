@@ -18,6 +18,17 @@
   sonido plano cansa. Candidata a próxima mejora de calidad.
 - **Capa MCP (CASO-008):** exponer el motor como tools MCP para otros clientes/operadores.
   *Reclama:* un segundo usuario del motor que no sea esta sesión.
+- **Generación premium para caras/manos/líquidos** (los 3 puntos ciegos de SDXL, ver
+  [[manos-deformes-sdxl-y-fix-negativo]]). Presupuesto ~$3/short repartido por tipo: stills de
+  arquitectura/objetos siguen GRATIS en SDXL Kaggle (el 70%, ya clava); solo los 2-3 planos con
+  humano/líquido usan herramienta de pago. Reparto de editor: (a) **caras/personas** → imagen
+  premium con mejor anatomía (Midjourney es lo que usan los canales de 8M vistas, o SDXL-API/Ideogram);
+  (b) **manos** → **inpainting selectivo** (regenerar solo la mano, no la imagen entera — "vary region");
+  (c) **líquidos** → ya se ven bien en movimiento con LTX i2v, el problema era el still base ambiguo →
+  con still premium de base, el i2v sale bien. *Reclama:* tracción del canal + que la dirección-por-plano
+  (silueta/fuera-de-cuadro/de-espaldas) deje de alcanzar. **Costo real hoy = ingeniería:** Midjourney no
+  tiene API oficial (va por Discord), el inpainting necesita kernel nuevo → deuda técnica. Mientras tanto:
+  **esquivar por dirección es gratis y es lo que hacen los pros** (benchmark 8M evita caras/manos de frente).
 
 ## Explícitamente descartadas salvo evidencia nueva
 

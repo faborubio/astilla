@@ -22,173 +22,112 @@ Hoy tiene **dos modos** (mismo pipeline, solo cambia la fuente):
 
 ---
 
-## ⏭️ Estado (2026-07-22)
+## ⏭️ Estado (2026-07-23)
 
-**Estado:** 🎉 **13 PUBLICADOS + 2 EN PAUSA (descartados por calidad)**. El motor produce shorts por
-**~$0.7 c/u** (flujo híbrido: fast + stills SDXL gratis + i2v), no $3-4, PERO tiene una falencia de
-calidad confirmada (ver abajo). Publicados: Anticitera v2 (**youtube.com/shorts/caRNsgvRorc**), telégrafo
-(**youtube.com/shorts/YWyjv3tG4SA**), pelo/catapultas (**youtube.com/shorts/xQJHJD4XJFI**), arquero,
-trepanacion, cerebro_vidrio, hormigon, quipus, lautaro, cruce_andes, chuno + **piston_fuego** y
-**sismografo** (subidos por Fabián el 2026-07-22).
+**Estado:** 🎉 **14 PUBLICADOS + 1 LISTO PARA SUBIR + 2 EN PAUSA**. El pipeline de imagen dio un salto
+grande esta sesión: **el generador de stills pasó de SDXL (Kaggle, gratis pero limitado) a ChatGPT
+(GPT-image, Plan Plus de Fabián)** — resuelve de raíz los 3 puntos ciegos que la audiencia venía
+criticando (manos, caras, líquidos, escenas que no ilustran el guion). Publicados: Anticitera v2, telégrafo,
+pelo/catapultas, arquero, trepanacion, cerebro_vidrio, hormigon, quipus, lautaro, cruce_andes, chuno,
+piston_fuego, sismografo + **mortero_bizantino** (**youtube.com/shorts/hm-JIzAQM_4**, primero de la serie
+«Ingenios Olvidados», 2026-07-22/23). `manavai` y `pisagua` siguen en pausa (esperan este mismo fix).
 
-**⏸️ `manavai` y `pisagua` EN PAUSA (2026-07-22):** de la tanda de 4, Fabián publicó solo `piston_fuego`
-y `sismografo`. **Los otros dos NO le gustaron → quedan en pausa por ahora** (no descartar el guion, sí
-el render actual). Tienen `short_musica.mp4` pero no se suben. Se retoman cuando el pipeline mejore la
-fidelidad visual (son justo los de referencias Rapa Nui / Guerra del Pacífico).
+**🎨 CAMBIO DE GENERADOR: SDXL → ChatGPT (2026-07-22/23) — el fix real de fidelidad.** Tras 3-4 rondas
+regenerando stills en SDXL sin resultado (manos deformes, escenas que ignoraban el prompt, diagramas
+ilegibles), Fabián probó generar en ChatGPT y clavó a la primera lo que SDXL no lograba en 4 intentos
+(ver el caso del still de "huevo + mortero" y los diagramas tipo Da Vinci). **Decisión: los stills de
+Vestigios se generan en ChatGPT de acá en adelante**, con un kit de prompts en español por short
+(`shorts/<n>/prompts_chatgpt.md`) que Claude prepara y Fabián ejecuta a mano (Plan Plus, sin API — flujo
+human-in-the-loop). Look fijo = **óleo pictórico** (coherente con los 13 shorts previos). SDXL/Kaggle
+queda como alternativa de respaldo, no como default. Ver [[manos-deformes-sdxl-y-fix-negativo]].
 
-**🗣️ CRÍTICA DE LA AUDIENCIA (2026-07-22) — el problema #1 a resolver:** en los publicados de anoche
-llegaron **comentarios con crítica constructiva sobre clips que no tienen nada que ver con lo narrado**.
-Esto CONFIRMA desde afuera la deuda visual que ya veíamos internamente: LTX (t2v) deriva del contenido
-del guion (etnia/época/objeto equivocado, escenas genéricas que no ilustran el mecanismo). **El flujo es
-barato pero la relación imagen↔narración falla** → es la próxima pieza a arreglar del pipeline, no un
-detalle cosmético. Ver [[fidelidad-visual-ltx-etnia-epoca]], [[referencias-y-i2v-para-fidelidad]].
+**✅ GATE DE REVISIÓN DE STILLS (regla dura, aplica siempre):** Fabián revisa CADA still frame a frame
+ANTES de animar/armar — 2 preguntas: ¿bien dibujado? ¿ilustra el beat narrado? Claude hace una segunda
+pasada por separado y comparan (cada uno cachó defectos que el otro no). El que falle se regenera
+(gratis en Kaggle; en ChatGPT cuesta la cuota del plan pero no dinero directo). Ver [[revisar-stills-antes-de-armar]].
 
-**💰 FLUJO HÍBRIDO — la gran palanca de costo (2026-07-21/22):** de ~$3-4/short (pro, todo-video) a
-**~$0.7/short**. Tres decisiones: (a) **fast por default** (no `--pro`; A/B lo probó: igual/más on-brand,
-−33%, y como la API no fija semilla sacás 2 tiros por el precio de 1 pro); (b) **stills SDXL gratis en
-Kaggle** para las escenas estáticas (`scripts/generar_stills_kaggle.py`, kernel `sdxl` en `ejecutor_kaggle.py`)
-animadas con Ken Burns local, y LTX-video solo en las escenas con movimiento (`generar_ltx.py --video`);
-(c) **i2v** (`generar_ltx.py --i2v`) para anclar el video a un still fiel cuando t2v deriva. Reparto
-video/still por short en [`docs/reparto_video_still.md`](./docs/reparto_video_still.md).
+**💸 GOTCHA CARO DEL DÍA (G-16, ya arreglado):** `generar_ltx.py --i2v X` SIN `--video` mandaba el
+resto a **t2v ciego pagado** en vez de Ken Burns gratis → quemó ~$4 del saldo LTX en clips descartados
+(alguno alucinó una torre eléctrica en escena bizantina). Default arreglado: sin `--video`, lo no-i2v va
+a Ken Burns SI tiene still, a t2v solo si NO tiene still. **Regla nueva: confirmar costo estimado con
+Fabián antes de CUALQUIER corrida que gaste LTX.** Saldo actual: **~$1**. Ver [[confirmar-costo-ltx-antes-de-pagar]].
 
-**🎯 FIDELIDAD POR REFERENCIAS (2026-07-22):** para temas específicos (Rapa Nui, Guerra del Pacífico),
-Fabián pasa **fotos de referencia** → Claude extrae los detalles al prompt (**Nivel 1**) + **i2v** ancla el
-video a un still fiel (**Nivel 2**). Corrigió manavai (manavai reales = anillo BAJO de basalto oscuro, no
-torres/vidrio) y pisagua (uniforme chileno 1879 **azul+rojo+kepí**, buques a vapor, desierto del Atacama;
-adiós casco de acero/veleros). Es el fix definitivo de [[fidelidad-visual-ltx-etnia-epoca]]. Ver
-[[referencias-y-i2v-para-fidelidad]].
+**📚 GATE DE FUENTES ANTES DE GRABAR (regla dura, la trajo Fabián 2026-07-22):** cada guion nuevo lleva
+línea `**Fuente:**` verificada contra fuente académica ANTES de grabar; si el dato no aguanta, se
+reencuadra o se bota. Lo destapó el propio mortero publicado: el dato "clara de huevo → aguanta
+terremotos" es un **mito viral** de la pestaña Inspiración de YouTube (real pero inflado). Corrigió de
+paso la katana (era "ceniza de volcán", mito → ahora pulido real con óxido de hierro) y el papel chino
+(era "arsénico", mito → es berberina; el arsénico real era el CORRECTOR, no el tinte). Ver [[gate-de-fuentes-antes-de-grabar]].
 
-**🖼️ DEUDA VISUAL (espera crédito):** Fabián notó que varios clips de la tanda **no son verídicos
-para la época / la etnia de las personas está equivocada** (LTX mete caras europeas/anacronismos pese
-a "Andean"/"Mapuche"/"Inca" en el prompt). Fix = reforzar prompt con **etnia + época explícitas +
-negativos** y **regen targeted** de los clips ofensivos (no todos). Ver [[fidelidad-visual-ltx-etnia-epoca]].
+**🎬 FÓRMULA v3 + BANCO VERIFICADO EN COLA (18 guiones, secciones 16-33 de `guiones.md`):** hook-misterio
+con gap, sin tríada, voz con opinión, cierre que ABRE loop, ~150-175 palabras — más agresivo que la v2
+(que solo arreglaba el CTA). Orden maestro de grabación + "pastilla la próxima" (el tease se graba
+aparte y se fija al editar según calendario real). **`piedra_solar` (#21) ya está grabada y armada**,
+lista para que Fabián la revise y suba — su tease apunta a la **katana** (#17, primera del banco en cola).
+Series: 16-29 «Ingenios Olvidados» (mundo), 30-33 «Mecanismos de América». Todo vive en el ÚNICO
+`artifacts/guiones.md` (no hay archivo separado — ver [[gate-de-fuentes-antes-de-grabar]]).
 
-**🔧 FIX de audio esta tanda:** quipus tenía una repetición de "decenas" a los 0:29 (Whisper la fusionó
-en un token largo con 1.45s de pausa muerta). Se cortó del **video final** con empalme en silencio
-(`trim`+`concat`, ambos extremos en silencio detectado con `silencedetect`) → $0, sin regenerar clips.
-Método nuevo: para cazar repeticiones que Whisper fusiona, mirar palabras con duración anómala + `silencedetect`.
+**🖼️ GUIÑO VISUAL DEL PRÓXIMO SHORT (idea de Fabián, 2026-07-22, en prueba):** la última escena de cada
+short muestra la imagen del PRÓXIMO tema (no solo el audio lo nombra) — mortero cierra con un cristal
+vikingo, piedra_solar cierra con una katana. Refuerza el gancho de suscripción a nivel visual, $0 extra
+(es un still que ya se iba a generar). No es regla fija todavía, se evalúa short a short. Ver [[guino-visual-proximo-short]].
 
-**📊 PANEL DE PRODUCCIÓN (nuevo 2026-07-21):** `docs/panel_produccion.html` (abrir con file://, sin
-cuenta) = estado del pipeline por short (leído del disco) + métricas de publicados + banco. Se regenera
-con `python scripts/generar_panel.py`; datos manuales en `docs/panel_datos.json`. Correrlo tras cada
-avance. (El artifact de claude.ai quedó bajo la cuenta corporativo@caucorp, que Fabián no puede abrir.)
+**📊 PANEL DE PRODUCCIÓN:** `docs/panel_produccion.html` (abrir con file://, sin cuenta) = estado del
+pipeline por short + métricas + banco. Se regenera con `python scripts/generar_panel.py`; datos
+manuales en `docs/panel_datos.json`. **Pendiente: no se regeneró esta sesión** — correrlo antes de la
+próxima, agregando mortero_bizantino y piedra_solar.
 
-**⚠️ LECCIÓN de esta tanda (audio):** al grabar, si Fabián se traba y **repite la frase**, esa
-repetición QUEDA en el audio (`limpiar_voz` no la borra). Hay que **cortarla a mano** del wav (empalme
-en los silencios con `aselect='not(between(t,A,B))'`) y re-correr armar+retimeo+música (los clips LTX
-se reusan, $0 extra). Por eso la nota de `guiones.md` ahora pide **pausar 1-2s antes de repetir**.
-Además: si la cola se come el CTA final, re-limpiar con `--sin-recorte-final` y recortar la cola a mano.
-
-**🔧 FIXES de pipeline esta tanda:** (a) `transcripcion_whisper.transcribir()` ya NO pasa el guion como
-`initial_prompt` ni usa `vad_filter` (juntos TRUNCABAN a la mitad o ALUCINABAN el arranque; el texto
-final igual sale del pase por-palabra reconciliado). (b) **Refactor folder-aware**: un short = una
-carpeta `artifacts/shorts/<n>/`, scripts con `--nombre` (`scripts/rutas.py`). **Gotcha 11 muerto.**
-Ver [[refactor-folder-aware-y-fix-transcripcion]].
-
-**REPO EN GITHUB (jul 2026):** `faborubio/astilla` **privado**, remote `origin` por HTTPS (`gh`
-autenticado como faborubio). `.claude/` NO se versiona (config local). `artifacts/` gitignored
-(guiones `guiones.md`, wavs, mp4 quedan solo locales). Commitear/pushear cuando se pida.
+**REPO EN GITHUB:** `faborubio/astilla` **privado**, remote `origin` por HTTPS (`gh` autenticado como
+faborubio). `.claude/` NO se versiona. `artifacts/` gitignored (guiones, wavs, mp4 quedan solo locales).
 
 **CANAL: `VESTIGIOS`** (handle `@vestigios.historia`) — nicho historia/divulgación, look museo/
-documental, paleta teal+ámbar. ⚠️ NO es canal nuevo: preexistía con música IA (sin tracción) →
-reconvertido. Las 595 vistas están "contaminadas" por audiencia de música, NO son señal limpia.
-Los próximos 4-5 shorts REEDUCAN al algoritmo → 2-3 semanas de datos ruidosos, no sacar
-conclusiones de un short individual en ese tramo. Ver [[primer-short-publicado]].
+documental, paleta teal+ámbar. Ver [[estrategia-canal-vestigios]], [[primer-short-publicado]].
 
-**📊 MÉTRICAS (2026-07-20, con la tanda de 4 ya publicada):** canal **23 subs (+18/28d**, casi el
-doble desde los 11 de la medición anterior). Los 4 nuevos con **like-rate ~7%** (arquero 898/70,
-cerebro_vidrio 778/55, trepanacion 688/36, pelo 577/41) = la señal más limpia de que el guion
-funciona. 4,2K vistas / 37,9h en 28d. **⚠️ hormigón: retención 53,9%** (vs 74% del baseline) →
-**tema saturado** (Fabián lo vio en varios canales); no es falla de guion. **Comentarios ~0 sigue
-siendo el gap.** Primera señal (3 shorts, 74,4% retención): [[estrategia-canal-vestigios]].
+**ESTRATEGIA vigente:** títulos-pregunta + CTA de suscripción con serie+gancho al próximo (fórmula v2/v3)
++ hashtags, todo en `artifacts/guiones.md`. Chequear saturación antes de cada tema nuevo. El moat es
+guion + credibilidad (gate de fuentes) + distribución, NO foto-realismo/GPU.
 
-**🔑 DOS CRITERIOS DE TEMA NUEVOS (2026-07-20, ver [[estrategia-canal-vestigios]] §7-8):**
-(a) **chequear saturación antes de elegir tema** (el hormigón lo probó); (b) **evitar temas de odio
-entre naciones** aunque den comentarios — se retiró el guion de la Guerra del Pacífico (agravio
-Bolivia/mar, imán de flame) y se reemplazó por **pisagua** (misma guerra, encuadre de MECANISMO:
-desembarco anfibio). Nada de superlativos falsos ("primero del mundo"). El género bélico es un
-desvío: los hits siempre fueron "técnica ingeniosa", no guerra.
+**📁 ESTRUCTURA (un short = una carpeta `artifacts/shorts/<n>/`)** con nombres FIJOS: `voz.wav`,
+`guion.txt`, `prompts.json` (o `prompts_chatgpt.md` para el kit en español), `segmentos.json`,
+`visual_job.json`, `palabras.json`, `subs.ass`, `bed.mp4`, `clips/still_NN.png` + `clips/escena_NN.mp4`
+(Ken Burns o i2v), `short.mp4`, `short_musica.mp4`. Compartidos en la raíz: `bd.rnnn`,
+`musica_lightless_dawn.mp3`, `guiones.md` (maestro ÚNICO). Todos los scripts toman `--nombre <n>` y
+resuelven las rutas solas (`scripts/rutas.py::RutasShort`).
 
-**ESTRATEGIA aplicada (checklist de 7 factores Hook/Retención/Duración/CTA/Constancia/Hashtags/
-Suscriptores):** **títulos-pregunta** + **CTA de comentario** al cierre + **hashtags** por short, todo
-en el maestro `artifacts/guiones.md`. Focos abiertos: **constancia** (grabar seguido, el factor
-más frágil) y auditar el **hook a 2s** en Studio. NO perseguir foto-realismo/GPU: el moat es guion+
-distribución.
-
-**📝 BANCO DE GUIONES sin grabar (al 2026-07-20):** `lautaro`, `cruce_andes`, **`pisagua`** (Guerra
-del Pacífico reencuadrada como operación anfibia) + **serie mecanismos de América**: **`chuno`**
-(chuño/liofilizado de papa), **`quipus`**. **Fuente única de texto = el maestro
-`artifacts/guiones.md`** (título + hashtags + guion de cada short, una sección por short); el
-`shorts/<n>/guion.txt` que consume el pipeline se GENERA de ahí con
-`python scripts/exportar_guion.py --nombre <n>` (solo la voz hablada) — no editar guion.txt a mano.
-El guion viejo de Guerra del Pacífico se retiró a `artifacts/_legacy/shorts_retirados/guerra_pacifico/`.
-Todos siguen la fórmula (gancho contraintuitivo → problema → mecanismo → tríada de 3 palabras →
-cierre → CTA) sobre hechos reales.
-
-**⚠️ `moais` EN PAUSA (saturado, chequeo 2026-07-20):** el guion existe (`artifacts/shorts/moais/`)
-pero el tema "cómo caminaron los moáis" está **explotando en Shorts ahora** (shorts con el mismo
-ángulo en oct-2025 … may-2026) → es el nuevo `hormigón`. NO grabar hasta que baje la ola (revisar
-en ~3-6 meses). **Reemplazo elegido para la línea Isla de Pascua: `manavai`** (jardines de piedra:
-cómo cultivaban en la isla volcánica pelada con corrales que rompen el viento y atrapan humedad) —
-saturación en Shorts casi nula (solo prensa de conservación), mecanismo puro, on-brand. **Guion de
-`manavai` ya escrito** (sección #11 del maestro `guiones.md` + título en el mismo). `pukao` (subir el
-sombrero) se descartó por estar pegado al tema saturado del moái. Ver [[estrategia-canal-vestigios]] §9.
-
-**📁 ESTRUCTURA (folder-aware desde jul 2026): un short = una carpeta `artifacts/shorts/<n>/`**
-con nombres FIJOS: `voz.wav`, `guion.txt`, `prompts.json`, `segmentos.json`, `visual_job.json`,
-`palabras.json`, `subs.ass`, `bed.mp4`, `clips/still_NN.png` (stills SDXL) + `clips/escena_NN.mp4`
-(Ken Burns o video/i2v), `short.mp4`, `short_musica.mp4`.
-Compartidos en la raíz `artifacts/`: `bd.rnnn`, `musica_lightless_dawn.mp3`, `guiones.md` (maestro:
-título + hashtags + guion de todos los shorts). Lo viejo (telegrafo, pelo, anticitera, historia, hablante, luma) en `artifacts/_legacy/`.
-Todos los scripts toman `--nombre <n>` y resuelven las rutas solas (`scripts/rutas.py::RutasShort`).
-**Esto mató el gotcha 11 de raíz** (cada checkpoint es propio de su carpeta, imposible reusar el de
-otro short).
-
-**El circuito de producción (folder-aware, reproducible):**
+**El circuito de producción (folder-aware, reproducible, actualizado con ChatGPT):**
 1. Fabián graba el guion (mismo lugar sin ruido, 20-30cm del mic). **Si se traba: pausa 1-2s en
-   silencio y repite la frase entera.** ⚠️ `limpiar_voz` NO borra repeticiones — Claude las corta a
-   mano después (esa pausa clara es la que deja el corte limpio). Cae en `Documents/Grabaciones de sonido/<nombre>.m4a`.
+   silencio y repite la frase entera.** ⚠️ `limpiar_voz` NO borra repeticiones ni respiraciones fuertes
+   — se cortan/silencian a mano después con `silencedetect`+`aselect`/`volume=enable=between(...)`
+   (empalme en el hueco entre frases, sin tocar palabras). Cae en `Documents/Grabaciones de sonido/<n>.m4a`.
 2. **`python scripts/limpiar_voz.py --in "<...>.m4a" --nombre <n>`** → `shorts/<n>/voz.wav`.
-   highpass+arnndn (`bd.rnnn`)+comp+ganancia estática a -16 LUFS (NO loudnorm 1-pasada) + recorta
-   silencio inicial Y cola final (`--sin-recorte-final` la desactiva; usar si la cola se come el CTA).
-2b. **`python scripts/exportar_guion.py --nombre <n>`** → genera `shorts/<n>/guion.txt` (solo la voz
-   hablada) desde la sección del maestro `artifacts/guiones.md`. El guion se edita SIEMPRE en el
-   maestro, nunca en guion.txt directo. (Si cambiás el texto en el maestro, re-exportá.)
-3. `python -m pipeline.animado --nombre <n> --audio artifacts/shorts/<n>/voz.wav --guion
-   artifacts/shorts/<n>/guion.txt --autorizacion original --evidencia "..." --estilo historico
-   --modelo medium --semilla N --stub-visual` (transcribe + planifica escenas). Con `--nombre`
-   escribe `segmentos.json`/`visual_job.json` DENTRO de la carpeta (ya no hay que apartar nada).
-   Nota: si cambiás el audio, **borrá `shorts/<n>/segmentos.json` y `palabras.json`** para forzar
-   re-transcripción (siguen siendo checkpoints, pero ahora aislados por carpeta).
-4. Claude escribe los prompts pictóricos por escena EN SESIÓN → `shorts/<n>/prompts.json` (ancla de
-   estilo compartida = *painterly oil painting, teal+amber, chiaroscuro, 9:16*; incluir un plano
-   explainer tipo diagrama Da Vinci). **Para stills SDXL: estilo al FRENTE** (si no, SDXL deriva a foto)
-   y etnia/época en afirmativo. **Tema específico/local → pedir REFERENCIAS a Fabián** y sacar los
-   detalles exactos al prompt ([[referencias-y-i2v-para-fidelidad]]). Inyectar en `visual_job.json`.
-4b. **Stills gratis (Kaggle SDXL, $0):** `python scripts/generar_stills_kaggle.py --nombre <n> --indices
-   <estáticas>` → `clips/still_NN.png`. El negativo por defecto mata foto/etnia/anacronismo; `--negativo`
-   lo override (ej. anti "torre/vidrio", anti "casco/velero", anti "todo rojo"). **Revisar por frame y
-   regenerar los que fallen (gratis).**
-5. **Video LTX-fast, política i2v-por-defecto (FIDELIDAD, 2026-07-22):** la audiencia criticó "clips
-   que no tienen nada que ver" → causa raíz = **t2v ciego** (`--video`): LTX genera desde texto sin
-   imagen de anclaje ni negative prompt, y deriva de etnia/época/objeto. **Fix = anclar todo money shot
-   a un still SDXL fiel e** `**--i2v**` (LTX solo agrega movimiento, no inventa la escena):
-   `python scripts/generar_ltx.py --nombre <n> --indices todas --auto --i2v "<money_shots>"` (o `--i2v
-   todas`) → `clips/escena_NN.mp4` (**fast = $0.04/s**, NO `--pro`; mismo costo que t2v). Las escenas sin
-   `--i2v`/`--video` = Ken Burns local $0 desde `still_NN.png`. **`--video` (t2v ciego) = solo si NO hay
-   still posible** para esa escena; el script avisa si mandás t2v teniendo still disponible. Reparto por
-   short: `docs/reparto_video_still.md`. Ver [[ltx-fast-vs-pro-y-hibrido-stills]], [[referencias-y-i2v-para-fidelidad]].
-6. `python scripts/armar_short.py --nombre <n> --semilla N` (transcribe por palabra,
-   **reconcilia con el guion-verdad**, karaoke MÍNIMO, bed, quema). Todo se resuelve de la carpeta.
-7. **Retimeo alineado al contenido (GOTCHA 13):** mirar `shorts/<n>/palabras.json`, elegir 1 corte por
-   clip en los límites de frase, `python scripts/retimear_bed.py --nombre <n> --cortes "a,b; b,c; ..."`.
-8. Música: `[1:a]volume=0.12,afade in/out` + `amix normalize=0` + master `loudnorm=I=-16:TP=-1.5`
-   → `shorts/<n>/short_musica.mp4`. Atribuir a **Kevin MacLeod (CC-BY)**.
+2b. **Ojo con guiones que tienen v2 + versión viral (A/B) en la misma sección** (G-14): `exportar_guion.py`
+   toma la v2 vieja por error (corta en el primer header `###`). Si grabaste la viral, escribir
+   `guion.txt` a mano con ESE texto (no correr el exportador ciegamente).
+3. `python -m pipeline.animado --nombre <n> --audio ... --guion ... --autorizacion original --estilo
+   historico --modelo medium --semilla N --stub-visual` (transcribe + planifica escenas).
+   Si cambiaste el audio (cortes/silencios), **borrá `segmentos.json` y `palabras.json`** antes de
+   re-correr para forzar re-transcripción.
+4. **Storyboard + prompts en ESPAÑOL para ChatGPT** → `shorts/<n>/prompts_chatgpt.md` (bloque de estilo
+   fijo: óleo pictórico, teal+amber, chiaroscuro, museo, pergamino + "sin manos/caras en primer plano" +
+   dirección anti-puntos-ciegos: navegante/gente SIEMPRE de espaldas o en silueta, objetos como sujeto
+   antes que acción con líquidos). Fabián genera en ChatGPT, revisa él primero, pasa las imágenes.
+4b. Claude mapea cada imagen a su `still_NN.png` por CONTENIDO (los nombres de descarga de ChatGPT no
+   traen el índice) y hace su propia pasada de revisión — comparar con la de Fabián antes de seguir.
+5. **Clips: Ken Burns por defecto ($0), i2v solo en 1-2 money shots** (confirmando costo con Fabián
+   primero — regla dura post-G-16): `python scripts/generar_ltx.py --nombre <n> --indices todas --auto
+   --i2v "<money_shots>"`. Sin `--video`: lo no-i2v con still va a Ken Burns automático.
+6. `python scripts/armar_short.py --nombre <n> --semilla N` (transcribe por palabra, reconcilia con el
+   guion-verdad, karaoke, bed, quema).
+7. **Retimeo alineado al contenido:** mirar `palabras.json`, cortes en límites de frase,
+   `python scripts/retimear_bed.py --nombre <n> --cortes "a,b; b,c; ..."`.
+8. **Fix de cola del CTA (nuevo, evita que se corte el "seguime"):** si el video termina justo cuando
+   termina la última palabra, agregar ~1.3s: `ffmpeg -vf tpad=stop_mode=clone:stop_duration=1.3 -af
+   apad=pad_dur=1.3`.
+9. Música: `volume=0.12,afade in/out` + `amix normalize=0` + `loudnorm=I=-16:TP=-1.5` → `short_musica.mp4`.
 
-**Próximos pasos:** → ver **`## Próxima sesión`** al final del doc (nombre estable del Método).
-
-**Sobre `ANTHROPIC_API_KEY`:** ya NO es bloqueante con Claude en sesión (escribe los prompts como
-`--prompts-file`). Solo haría falta para correr el pipeline 100% autónomo (cron/lote sin nadie).
+**Sobre `ANTHROPIC_API_KEY`:** no bloqueante con Claude en sesión. El paso de imagen ahora es manual
+(ChatGPT vía Fabián), así que el pipeline ya NO apunta a 100% autónomo en el corto plazo — es una
+decisión consciente de calidad sobre automatización total.
 
 ---
 
@@ -208,6 +147,7 @@ otro short).
 | CASO-011 | **Circuito de producción formalizado** (tanda telégrafo/pelo): `limpiar_voz.py`, `armar_short.py` (parametrizado, reconcilia guion↔timing), `reconciliar_palabras.py`, `retimear_bed.py`. Bug de `transcribir_palabras` arreglado. 2 shorts terminados | ✅ ver [[produccion-tanda-telegrafo-pelo]] (gotchas 11-13) |
 | CASO-012 | **Refactor folder-aware + tanda de 4** (arquero/trepanacion/cerebro_vidrio/hormigon): un short = una carpeta `artifacts/shorts/<n>/`, scripts con `--nombre` (`scripts/rutas.py`). Fix transcripción (vad+guion truncaba/alucinaba). Repeticiones al grabar → corte manual del wav. **Gotcha 11 muerto** | ✅ 4 shorts terminados; ver [[refactor-folder-aware-y-fix-transcripcion]] |
 | CASO-013 | **Flujo híbrido barato + fidelidad (~$0.7/short)**: fast por default (no `--pro`); **stills SDXL gratis en Kaggle** (`generar_stills_kaggle.py` + kernel `sdxl`) con Ken Burns local, LTX-video solo en escenas con movimiento (`--video`); **i2v** (`--i2v`) ancla el video a un still fiel. Referencias de Fabián → prompt preciso + i2v. Tanda de 4 (piston_fuego/manavai/sismografo/pisagua) terminada | ✅ ver [[ltx-fast-vs-pro-y-hibrido-stills]], [[referencias-y-i2v-para-fidelidad]] |
+| CASO-014 | **Pivot a ChatGPT para stills + gates de calidad**: SDXL fallaba en manos/caras/líquidos/escenas complejas → **stills en ChatGPT** (GPT-image, óleo pictórico, kit `prompts_chatgpt.md`, human-in-the-loop). Gate de revisión de stills (Fabián + Claude) + **gate de fuentes** (cada guion con `Fuente:` verificada; cazó 3 mitos virales). Guiño visual del próximo short, fórmula v3, fix de cola del CTA. mortero publicado + piedra_solar lista | ✅ ver [[manos-deformes-sdxl-y-fix-negativo]], [[gate-de-fuentes-antes-de-grabar]], [[revisar-stills-antes-de-armar]] |
 
 **LUMA (H-2 concretado, jul 2026):** `ambiente_clips_ffmpeg.ambiente_bed_clips` = adaptador de
 ambiente por CLIPS de video (hermano de `ambiente_bed`/Ken Burns). Ajusta clips de ~5s al beat de
@@ -395,42 +335,31 @@ tramo persiguiendo píxeles. No repetir.
 
 > Pendientes en orden de valor. **(Fabián)** = espera acción o decisión del autor.
 
-1. **🔧 ARREGLAR LA FIDELIDAD VISUAL DEL PIPELINE (foco #1, valida crítica de audiencia).** Los
-   comentarios del 2026-07-22 confirman que **los clips no ilustran lo narrado** (LTX t2v deriva de
-   etnia/época/objeto/mecanismo). `manavai` y `pisagua` quedaron en pausa por esto. El flujo es barato
-   pero la relación imagen↔narración es la falencia. Líneas a atacar (ver [[fidelidad-visual-ltx-etnia-epoca]],
-   [[referencias-y-i2v-para-fidelidad]]): (a) **inclinar la balanza a still SDXL + i2v** (negativo real →
-   controla etnia/época) y bajar el t2v puro, que es el que más deriva; (b) **reforzar el prompt** con
-   etnia+época explícitas+negativos y **plano-explainer** que muestre el mecanismo (el benchmark de 8M lo
-   pide); (c) **regen targeted** de los clips ofensivos, no del short entero. Definir esto ANTES de seguir
-   grabando temas nuevos — no tiene sentido acumular shorts con el mismo defecto.
-2. **(Fabián, cuando el pipeline mejore) Retomar `manavai` y `pisagua`** — guion y voz ya están; solo
-   falta re-renderizar los clips con el flujo corregido. Título/hashtags/descripción en `artifacts/guiones.md`
-   (secciones 11, 13). Activar el toggle de **"contenido alterado o sintético"** (divulgación de IA).
-3. **(Fabián) Banco por grabar — NUEVA SERIE «Ingenios Olvidados» (9 guiones listos, #15-23):**
-   escritos 2026-07-22 desde las **sugerencias de la IA de YouTube** (afines al algoritmo): mortero
-   bizantino (clara huevo), cúpulas persas (acústica), katana+ceniza, azul maya, espejos venecianos,
-   + 4 **reencuadrados** para esquivar saturación (hierro meteorítico → "cómo lo trabajaban sin fundir";
-   piedra solar vikinga → "óptica de polarización", no magia; mercurio azteca → "ritual/inframundo", no
-   morbo; arsénico papel chino → "conservación", no veneno). **Todos con CTA v2** (ver abajo). Descartados
-   por criterio: humo herbal escita, puente levadizo, plancton polinesio. **Antes de grabar: chequear
-   saturación** de cada uno en Shorts (esp. los reencuadrados). Grabar 1 cada 1-2 días (constancia).
-   Banco previo: `agua_rapanui` (#14, 2ª Isla Pascua — **no pegar a manavai**), Q'eswachaka (falta guion),
-   `moais` en pausa (saturado). Al grabar: **pausá 1-2s antes de repetir**; después el circuito híbrido.
-   **⭐ FÓRMULA v2 (2026-07-22, fix de suscripción):** los datos muestran buena retención + like ~7% PERO
-   **poca suscripción** → diagnóstico (Parte 3 del método, `docs/sistema_contenido.md` #2/#5/#7): el short se
-   siente suelto y el CTA no daba razón para volver. Fix = **CTA que nombra la serie + adelanta el próximo
-   short + pide suscripción** (convierte "short suelto" → "capítulo"). Molde en `artifacts/guiones.md`
-   (sección "FÓRMULA v2"). Series: «Mecanismos de América» (LatAm) y «Ingenios Olvidados» (resto del mundo).
-   Aplica del #15 en adelante; los 1-13 quedan con CTA viejo (no re-grabar). Ver [[formula-v2-cta-suscripcion]].
-4. **Watchear métricas** de los publicados (13 con piston_fuego/sismografo). Los de 2026-07-21
-   (quipus/lautaro/cruce_andes/chuno) siguen en ventana ruidosa de reeducación (no concluir de un short
-   suelto). Métrica primaria = **% visto/retención** — el informe **"Rendimiento en las primeras 24h"**
-   en **Modo Avanzado** da la tabla por video (**>100% = loopea, buscá eso**). Cargar en
-   `docs/panel_datos.json` + regenerar panel. **Chequear saturación** antes del próximo tema.
-   **Además: leer los comentarios** — ya dieron la señal más accionable (clips que no pegan).
-5. **(Fabián) Branding de Vestigios:** foto de perfil (emblema de engranaje) + banner. Ocultar
-   (unlisted) los videos viejos de música para limpiar la señal del canal.
-6. **Deuda técnica** — en [`docs/AUDIT.md`](./docs/AUDIT.md): AUD-002 (generalizar el retimeo dentro de
-   `armar_short.py`), AUD-003 (formalizar `ejecutor_ltx.py`/`generar_stills_kaggle` tras el `PuertoEjecutor`),
-   AUD-004 (saldo LTX en el dashboard; la **tanda híbrida de 4 costó ~$2.7**, no ~$14 como en pro).
+1. **(Fabián) SUBIR `piedra_solar`** — está terminada y aprobada (`shorts/piedra_solar/short_musica.mp4`,
+   79s, 100% stills ChatGPT, guiño de katana al cierre). Solo falta que Fabián la revise una vez más y la
+   suba. Título/hashtags/descripción en `guiones.md` #21 (versión viral grabada). Toggle **"contenido
+   alterado o sintético"** (divulgación de IA). ⚠️ Su tease dice "ceniza de volcán" (dato viejo); el short
+   #17 katana ya lo corrigió a óxido — es solo el tease, menor, pero tenerlo presente.
+2. **(Fabián) GRABAR `katana` (#17, primera del banco en cola)** — el tease de piedra_solar apunta a ella.
+   Guion viral + `Fuente:` verificada ya en `guiones.md` #17 (ángulo REAL: pulido *togi* + nugui de óxido
+   de hierro, NO la ceniza-mito). Después el circuito: limpiar voz → transcribir → **kit de prompts ChatGPT**
+   (`prompts_chatgpt.md`, óleo pictórico, guiño al próximo tema = mercurio #22) → Fabián genera en ChatGPT
+   y revisa → Claude mapea + segunda revisión → Ken Burns + armar. **Confirmar costo antes de tocar LTX.**
+3. **(Fabián) Banco 16-33 verificado en cola (~1 mes de contenido)** en `guiones.md`: orden maestro de
+   grabación (katana → mercurio → papel → cihuang → cúpulas → azul maya → espejos → hierro → arroz →
+   cadena americana). **Regla dura antes de grabar cualquiera: su línea `Fuente:` ya está chequeada**
+   (gate de fuentes, [[gate-de-fuentes-antes-de-grabar]]). Chequear saturación del tema en Shorts igual.
+   Grabar 1 cada 1-2 días (constancia = el factor más frágil). **Pausá 1-2s antes de repetir** al grabar.
+4. **(Fabián, cuando quiera) Retomar `manavai` y `pisagua`** — ahora que los stills se hacen en ChatGPT,
+   se pueden re-renderizar bien (era el fix que esperaban). Guion y voz ya están (guiones.md 11, 13).
+5. **Watchear métricas** de los publicados (14 con mortero). Métrica primaria = **% visto/retención**
+   (informe "Rendimiento en las primeras 24h", Modo Avanzado; **>100% = loopea**). El mortero es el
+   primer short con el pipeline de calidad completo (ChatGPT + v3 + guiño) → su retención/suscripción es
+   la señal a mirar. **Leer comentarios** (dieron la señal más accionable). ⚠️ **Regenerar el panel**
+   (`generar_panel.py`) — no se corrió esta sesión; agregar mortero + piedra_solar a `panel_datos.json`.
+6. **(Fabián) Branding de Vestigios:** foto de perfil (emblema de engranaje) + banner. Ocultar (unlisted)
+   los videos viejos de música para limpiar la señal del canal.
+7. **Deuda técnica** — en [`docs/AUDIT.md`](./docs/AUDIT.md): AUD-002 (generalizar el retimeo dentro de
+   `armar_short.py`), + nuevos: formalizar el flujo ChatGPT (kit de prompts → mapeo por contenido) y el
+   fix de cola del CTA (pasos 8) dentro de los scripts en vez de a mano. Distribución multi-plataforma y
+   research dummy-account siguen en [`IDEAS.md`](./IDEAS.md).

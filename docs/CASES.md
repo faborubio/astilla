@@ -308,6 +308,36 @@ Reparto video/still por short en `docs/reparto_video_still.md`. Ver [[ltx-fast-v
 
 ---
 
+## CASO-014 · Pivot a ChatGPT para stills + gates de calidad (mortero/piedra_solar) ✅
+
+**Contexto:** crítica pública en un short publicado ("mejora las ilustraciones, se ven deformes y
+algunas sin sentido"). Diagnóstico: SDXL falla en 3 puntos ciegos — **manos, caras, y escenas con
+relación compleja entre objetos** (SDXL pone objetos al lado; no integra "yema mezclándose EN el
+mortero"). 4 rondas de regeneración en SDXL no lo resolvieron.
+
+**Solución adoptada — stills en ChatGPT (GPT-image, Plan Plus):** generó a la primera lo que SDXL no
+logró en 4 intentos. Los stills de Vestigios pasan a ChatGPT. Look fijo = **óleo pictórico** (coherente
+con los 13 shorts previos; el benchmark de 8M dice que lo pictórico perdona más). Flujo: Claude escribe
+un kit de prompts en español (`shorts/<n>/prompts_chatgpt.md`) con bloque de estilo + dirección
+anti-puntos-ciegos (gente de espaldas/silueta, objeto como sujeto antes que acción con líquidos, "sin
+texto en inglés" donde el texto sería protagonista); Fabián genera en ChatGPT y revisa; Claude mapea
+cada imagen a su `still_NN.png` por CONTENIDO (los nombres de descarga no traen índice) y hace 2ª
+revisión. Es human-in-the-loop: calidad sobre automatización total. SDXL/Kaggle queda de respaldo.
+
+**Dos gates de calidad (reglas duras):**
+- **Revisión de stills antes de armar** — Fabián frame a frame + Claude 2ª pasada, comparan (cada uno
+  cachó defectos distintos). Regen del que falle. Ver [[revisar-stills-antes-de-armar]].
+- **Fuentes antes de grabar** — cada guion lleva `Fuente:` verificada; destapó 3 mitos virales (huevo
+  bizantino, ceniza de katana, arsénico del papel), reencuadrados al mecanismo real. Ver [[gate-de-fuentes-antes-de-grabar]].
+
+**Otros:** guiño visual del próximo short en la última escena ([[guino-visual-proximo-short]]); fórmula
+v3 (hook-misterio, sin tríada, cierre-loop, voz propia); fix de cola del CTA (`tpad`+`apad` ~1.3s para
+que el "seguime" no se corte); bug G-16 (`--i2v` sin `--video` pagaba t2v ciego, ~$4 quemados, arreglado).
+Resultado: mortero_bizantino publicado (youtube.com/shorts/hm-JIzAQM_4), piedra_solar lista para subir.
+Ver [[manos-deformes-sdxl-y-fix-negativo]], [[politica-i2v-por-defecto-fidelidad]], [[confirmar-costo-ltx-antes-de-pagar]].
+
+---
+
 ## Próximos casos (roadmap)
 - **CASO-007** — reanudación tras desconexión: matar el proceso y retomar (ADR-002).
 - **CASO-008** — capa MCP: "generá 3 shorts de este episodio, estilo cómic".
