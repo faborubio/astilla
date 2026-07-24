@@ -123,9 +123,11 @@ def main() -> None:
     ap.add_argument("--job", type=Path, default=None, help="override del visual_job.json")
     ap.add_argument("--clips-dir", type=Path, default=None, help="override del destino de clips")
     ap.add_argument("--video", default=None,
-                    help="indices que van a LTX-video (pagos); el resto de --indices se "
+                    help="indices que van a t2v CIEGO de LTX-video (PAGO); el resto de --indices se "
                          "renderiza como still+Ken Burns local ($0). Requiere clips/still_NN.png. "
-                         "Omitido = todas van a video (comportamiento clasico).")
+                         "OMITIDO (default seguro, fix G-16): NO manda todo a video; lo que no es --i2v "
+                         "va a Ken Burns SI tiene su still, y solo paga t2v la escena que NO tiene still. "
+                         "Para forzar t2v teniendo still, listala explicita aca.")
     ap.add_argument("--i2v", default=None,
                     help="indices que van a IMAGE-TO-VIDEO desde clips/still_NN.png: LTX anima ese "
                          "still (ancla el contenido; ideal cuando el still es fiel y t2v deriva). "
@@ -145,7 +147,10 @@ def main() -> None:
 
     key = leer_key()
     modelo = "ltx-2-3-pro" if args.pro else "ltx-2-3-fast"
-    tarifa = 0.06 if args.pro else 0.04
+    # TARIFA REAL (2026-07-23): un i2v fast de 6s devolvio 402 "Required: 36 cents"
+    # -> fast = $0.06/s (NO $0.04 como asumia antes; sub-estimaba y provocaba 402 a media corrida).
+    # pro sin verificar: estimado 1.5x fast = $0.09/s (ajustar cuando haya dato real).
+    tarifa = 0.09 if args.pro else 0.06
     import math
 
     def _dur_valida(beat: float) -> int:

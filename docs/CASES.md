@@ -338,6 +338,46 @@ Ver [[manos-deformes-sdxl-y-fix-negativo]], [[politica-i2v-por-defecto-fidelidad
 
 ---
 
+## CASO-015 · Tanda de 5 encadenada + `katana` con 3 i2v + herramientas de revisión de voz ✅
+
+**Contexto:** producir en serie. Se armó una tanda de 5 shorts encadenados por guiño visual
+(**katana → mercurio → papel → cihuang → arroz**) grabando los audios en bloque y armando de a uno.
+Reorden clave: cihuang grabó su cierre nombrando la Gran Muralla → el próximo pasa a ser `arroz` (no
+cúpulas); cúpulas queda para después.
+
+**`katana` (#17) publicada end-to-end** (youtube.com/shorts/VNJMwCSm904, 85.9s, 15 escenas): stills en
+ChatGPT (13 imágenes, 2 fusionadas cubriendo 15 escenas), mapeadas por contenido a `still_NN.png` +
+2ª revisión; Ken Burns local en 12 escenas ($0) + **i2v en 3 money shots** (hook/nugui/hamon) anclados
+a su still fiel; `armar_short` (karaoke + bed) + música + cola CTA. Primer short del pipeline
+i2v-por-money-shot completo. Gasto LTX ~$0.96 → saldo a ~$0.
+
+**Costo LTX real corregido:** un i2v fast de 6s devolvió `402 "Required: 36 cents"` → tarifa real
+**$0.06/s** (no $0.04). Corregido en `generar_ltx.py` (`tarifa=0.09 pro / 0.06 fast`) y en el `--help`
+de `--video` (antes decía "omitido = todo a video", la trampa del G-16). La API redondea la duración al
+segundo PAR ≥ beat (4/6/8/10). Ver [[confirmar-costo-ltx-antes-de-pagar]].
+
+**Herramienta nueva `scripts/revisar_voz.py` (nace de una odisea de ~15 rondas):** revisar la voz por
+repeticiones/stutters con la transcripción por SEGMENTOS falla — una tos o hueco <0.4s fusiona las dos
+tomas en un segmento largo, y un tartamudeo pegado Whisper lo transcribe como UNA palabra estirada (ej.
+"túnel" durando 3.4s), invisible para un detector de repeticiones exactas. `revisar_voz.py` corre DOS
+detecciones: repeticiones ≥3 palabras idénticas pegadas + stutters (palabras >1.1s). Para cortar: usar
+**silencios acústicos** (`silencedetect`), no los timestamps de Whisper; **verificar después**; el
+**oído de Fabián es el gate final** (cazó lo que ninguna herramienta vio). Se limpiaron mercurio/papel/
+cihuang (80.4/100.2/79.6s). Va después de `limpiar_voz`, antes de armar. Otros aprendizajes de audio:
+`--sin-recorte-final` para no comerse el "…perdértelo" del outro, y compuerta de huecos para las
+respiraciones. Ver [[detectar-repeticiones-stutters-voz]], [[cola-outro-cortada-limpiar-voz]],
+[[debreath-respiraciones-audio]].
+
+**`mercurio_tumba` (#22) armado (2026-07-24, primera sesión en WSL):** 11 stills ChatGPT + 3 i2v con
+el mismo reparto de katana (6+4+6s = **$0.96**, bajo la regla nueva de **máx $1 LTX por short**).
+El i2v del cielo estrellado salió defectuoso (el drift de cámara se metía al techo → bokeh borroso
+del segundo ~3 en adelante): se rescató a **$0** recortando el tramo limpio y armando un **palíndromo
+ida-vuelta** (ffmpeg trim+reverse+concat) — en escenas de titileo/llama la reversa es invisible y el
+bed lo estira igual. Gotcha operativo: la key de LTX **expira** (401 "Invalid API key" con key que
+funcionaba ayer = key vencida, regenerar en el dashboard → `~/.ltx/api_key`).
+
+---
+
 ## Próximos casos (roadmap)
 - **CASO-007** — reanudación tras desconexión: matar el proceso y retomar (ADR-002).
 - **CASO-008** — capa MCP: "generá 3 shorts de este episodio, estilo cómic".

@@ -22,15 +22,74 @@ Hoy tiene **dos modos** (mismo pipeline, solo cambia la fuente):
 
 ---
 
-## ⏭️ Estado (2026-07-23)
+## ⏭️ Estado (2026-07-24)
 
-**Estado:** 🎉 **14 PUBLICADOS + 1 LISTO PARA SUBIR + 2 EN PAUSA**. El pipeline de imagen dio un salto
+**🎬 `mercurio_tumba` (#22) TERMINADO Y APROBADO — pendiente de subir (Fabián).** `short_musica.mp4`
+(81.8s) con 11 stills ChatGPT en Ken Burns + **3 money shots i2v** replicando el reparto de katana
+(6s+4s+6s = 16s = **$0.96**): esc00 hook túnel (push-in a la oscuridad), esc02 charco de mercurio
+(espejo quieto perfecto, sin ondas) y esc09 cielo estrellado. Guiño de cierre = rollo chino →
+encadena con `papel` (#23). Cola CTA 1.3s + música 0.12 + loudnorm -16 aplicados.
+
+**💻 ENTORNO NUEVO: WSL (Linux) desde hoy** — ver §Entorno. Usar `.venv/bin/python` del repo;
+grabaciones siguen en `/mnt/c/Users/Fabian/Documents/Grabaciones de sonido/`.
+
+**💸 RECARGA $5 · GASTO $0.96 · SALDO ~$4.04 · REGLA NUEVA DURA: máx $1 de LTX por short, SIEMPRE**
+(alcanza para ~4 shorts más con money shots). La key de LTX **expiró el 2026-07-24** y se regeneró:
+ahora vive en `~/.ltx/api_key` (WSL); si vuelve un 401, primero sospechar key vencida.
+
+**🩹 TRUCO NUEVO (rescate de i2v malo a $0):** el clip i2v de esc09 se arruinaba del segundo ~3 en
+adelante (el drift de cámara se metía al techo → puro bokeh borroso). En vez de regenerar (rompía el
+tope de $1): recortar el tramo limpio inicial y armar un **palíndromo ida-vuelta** con ffmpeg
+(`trim` + `reverse` + `concat`) — en escenas de titileo/llama la reversa no se nota, y el bed lo
+estira igual. Original guardado como `escena_NN_ltx_raw.mp4`. Candidato a formalizar en script.
+
+---
+
+## ⏭️ Estado (2026-07-23, sesión 2)
+
+**🎬 TANDA DE 5 EN PRODUCCIÓN + `katana` PUBLICADA CON 3 i2v (sesión 2, 2026-07-23).** Se armó una
+tanda de 5 shorts encadenados por guiño visual: **katana → mercurio → papel → cihuang → arroz**
+(reordenado desde cúpulas: cihuang grabó su cierre nombrando la Gran Muralla → el próximo es `arroz`,
+no cúpulas; cúpulas queda para más adelante). Estado de la tanda:
+- **`katana` (#17) PUBLICADA** → **youtube.com/shorts/VNJMwCSm904** (85.9s, 15 escenas, **3 money shots
+  i2v**: hook/nugui/hamon; resto Ken Burns). Primer short del pipeline i2v-por-money-shot completo.
+- **`mercurio` (#22), `papel` (#23), `cihuang` (#24): audios grabados, limpiados y verificados** (voz.wav
+  80.4/100.2/79.6s). Kits de prompts listos en cada `shorts/<n>/prompts_chatgpt.md`.
+- **`mercurio` EN CURSO:** guion exportado + **14 escenas planificadas (semilla 22)** + kit reescrito a
+  **11 imágenes** (mapeo por escena, saltando 03/05/11). **Esperando a Fabián:** generar las 11 en ChatGPT
+  y **recargar ~$1 de LTX** (decidió i2v en los money shots `still_02` charco + `still_09` cielo estrellado).
+  Detalle completo en `## Próxima sesión` ítem 1.
+- Los 5 kits de ChatGPT están hechos (katana/mercurio/papel/cihuang/cupulas_persas).
+
+**🩺 REVISIÓN DE AUDIO — herramienta nueva `scripts/revisar_voz.py` (regla dura post-odisea).** La
+transcripción por segmentos ESCONDE repeticiones (una tos o hueco <0.4s las fusiona) y stutters (Whisper
+estira una palabra 3.4s cuando pega dos tomas). Se cazaron a mano tras ~15 rondas. Ahora, **después de
+`limpiar_voz` y antes de armar**, correr `python scripts/revisar_voz.py --nombre <n>` (detecta
+repeticiones ≥3 palabras + palabras estiradas >1.1s), cortar por **silencios acústicos** (no timestamps
+de Whisper), **verificar después**, y el **oído de Fabián es el gate final**. Además: `limpiar_voz` se
+comía el "…perdértelo" bajito del outro (usar `--sin-recorte-final` + trim del click) y quedan
+respiraciones audibles que hay que atenuar (compuerta de huecos, proteger últimos 2s). Ver
+[[detectar-repeticiones-stutters-voz]], [[cola-outro-cortada-limpiar-voz]], [[debreath-respiraciones-audio]].
+
+**💸 COSTO LTX REAL = $0.06/s (NO $0.04) · SALDO ~$0.** Un i2v fast de 6s devolvió `402 "Required: 36
+cents"` → tarifa real fast $0.06/s (ya corregida en `generar_ltx.py` y CLAUDE.md). katana gastó ~$0.96
+(3 money shots) y **dejó el saldo LTX en ~$0** → para animar mercurio hay que **recargar** (~$1 = ~1
+short de 2-3 money shots); si no, va 100% Ken Burns (sale bien con stills pictóricos). Confirmar costo
+antes de cualquier corrida. Ver [[confirmar-costo-ltx-antes-de-pagar]].
+
+---
+
+## ⏭️ Estado (2026-07-23, sesión 1)
+
+**Estado:** 🎉 **16 PUBLICADOS + 3 AUDIOS DE LA TANDA LISTOS + 2 EN PAUSA** (piedra_solar y katana se
+sumaron a los 14). El pipeline de imagen dio un salto
 grande esta sesión: **el generador de stills pasó de SDXL (Kaggle, gratis pero limitado) a ChatGPT
 (GPT-image, Plan Plus de Fabián)** — resuelve de raíz los 3 puntos ciegos que la audiencia venía
 criticando (manos, caras, líquidos, escenas que no ilustran el guion). Publicados: Anticitera v2, telégrafo,
 pelo/catapultas, arquero, trepanacion, cerebro_vidrio, hormigon, quipus, lautaro, cruce_andes, chuno,
-piston_fuego, sismografo + **mortero_bizantino** (**youtube.com/shorts/hm-JIzAQM_4**, primero de la serie
-«Ingenios Olvidados», 2026-07-22/23). `manavai` y `pisagua` siguen en pausa (esperan este mismo fix).
+piston_fuego, sismografo + **mortero_bizantino** (**youtube.com/shorts/hm-JIzAQM_4**), **piedra_solar**
+(vikingos, publicada — URL en Studio) y **katana** (**youtube.com/shorts/VNJMwCSm904**, sesión 2).
+`manavai` y `pisagua` siguen en pausa (esperan este mismo fix).
 
 **🎨 CAMBIO DE GENERADOR: SDXL → ChatGPT (2026-07-22/23) — el fix real de fidelidad.** Tras 3-4 rondas
 regenerando stills en SDXL sin resultado (manos deformes, escenas que ignoraban el prompt, diagramas
@@ -50,7 +109,8 @@ pasada por separado y comparan (cada uno cachó defectos que el otro no). El que
 resto a **t2v ciego pagado** en vez de Ken Burns gratis → quemó ~$4 del saldo LTX en clips descartados
 (alguno alucinó una torre eléctrica en escena bizantina). Default arreglado: sin `--video`, lo no-i2v va
 a Ken Burns SI tiene still, a t2v solo si NO tiene still. **Regla nueva: confirmar costo estimado con
-Fabián antes de CUALQUIER corrida que gaste LTX.** Saldo actual: **~$1**. Ver [[confirmar-costo-ltx-antes-de-pagar]].
+Fabián antes de CUALQUIER corrida que gaste LTX.** Saldo actual: **~$0** (agotado con katana; ver bloque
+sesión 2 arriba: tarifa real $0.06/s, hay que recargar). Ver [[confirmar-costo-ltx-antes-de-pagar]].
 
 **📚 GATE DE FUENTES ANTES DE GRABAR (regla dura, la trajo Fabián 2026-07-22):** cada guion nuevo lleva
 línea `**Fuente:**` verificada contra fuente académica ANTES de grabar; si el dato no aguanta, se
@@ -74,8 +134,8 @@ vikingo, piedra_solar cierra con una katana. Refuerza el gancho de suscripción 
 
 **📊 PANEL DE PRODUCCIÓN:** `docs/panel_produccion.html` (abrir con file://, sin cuenta) = estado del
 pipeline por short + métricas + banco. Se regenera con `python scripts/generar_panel.py`; datos
-manuales en `docs/panel_datos.json`. **Pendiente: no se regeneró esta sesión** — correrlo antes de la
-próxima, agregando mortero_bizantino y piedra_solar.
+manuales en `docs/panel_datos.json`. **Pendiente: sigue sin regenerarse** — correrlo antes de la
+próxima, agregando mortero_bizantino, piedra_solar y **katana**.
 
 **REPO EN GITHUB:** `faborubio/astilla` **privado**, remote `origin` por HTTPS (`gh` autenticado como
 faborubio). `.claude/` NO se versiona. `artifacts/` gitignored (guiones, wavs, mp4 quedan solo locales).
@@ -143,11 +203,12 @@ decisión consciente de calidad sobre automatización total.
 | CASO-005 | **AnimateDiff**: clips animados reales en Kaggle T4 (`--motion animatediff`) | ✅ |
 | CASO-006 | **Coherencia de personaje** (H-1): retrato-ancla + IP-Adapter por escena (`--coherencia`) | 🟡 código listo, falta validar en GPU |
 | CASO-009 | **Personaje hablante** (capas): hablante audio-driven (SadTalker) compuesto sobre ambiente IA + subs (`pipeline.hablante` + `animado` + `ensamblado_hablante_ffmpeg`) | ✅ short completo end-to-end (`short_hablante.mp4`) |
-| CASO-010 | **LTX-2.3 API** (video generativo CON API, $0.04/s): t2v + i2v, 9:16 por parámetro, prompts pictóricos por Claude en sesión. Short v2 publicado | ✅ `scripts/generar_ltx.py` + `armar_short_v2.py`; ver [[ltx-api-validada]] |
+| CASO-010 | **LTX-2.3 API** (video generativo CON API, **fast $0.06/s** — dato real 2026-07-23, ver abajo): t2v + i2v, 9:16 por parámetro, prompts pictóricos por Claude en sesión. Short v2 publicado | ✅ `scripts/generar_ltx.py` + `armar_short_v2.py`; ver [[ltx-api-validada]] |
 | CASO-011 | **Circuito de producción formalizado** (tanda telégrafo/pelo): `limpiar_voz.py`, `armar_short.py` (parametrizado, reconcilia guion↔timing), `reconciliar_palabras.py`, `retimear_bed.py`. Bug de `transcribir_palabras` arreglado. 2 shorts terminados | ✅ ver [[produccion-tanda-telegrafo-pelo]] (gotchas 11-13) |
 | CASO-012 | **Refactor folder-aware + tanda de 4** (arquero/trepanacion/cerebro_vidrio/hormigon): un short = una carpeta `artifacts/shorts/<n>/`, scripts con `--nombre` (`scripts/rutas.py`). Fix transcripción (vad+guion truncaba/alucinaba). Repeticiones al grabar → corte manual del wav. **Gotcha 11 muerto** | ✅ 4 shorts terminados; ver [[refactor-folder-aware-y-fix-transcripcion]] |
 | CASO-013 | **Flujo híbrido barato + fidelidad (~$0.7/short)**: fast por default (no `--pro`); **stills SDXL gratis en Kaggle** (`generar_stills_kaggle.py` + kernel `sdxl`) con Ken Burns local, LTX-video solo en escenas con movimiento (`--video`); **i2v** (`--i2v`) ancla el video a un still fiel. Referencias de Fabián → prompt preciso + i2v. Tanda de 4 (piston_fuego/manavai/sismografo/pisagua) terminada | ✅ ver [[ltx-fast-vs-pro-y-hibrido-stills]], [[referencias-y-i2v-para-fidelidad]] |
 | CASO-014 | **Pivot a ChatGPT para stills + gates de calidad**: SDXL fallaba en manos/caras/líquidos/escenas complejas → **stills en ChatGPT** (GPT-image, óleo pictórico, kit `prompts_chatgpt.md`, human-in-the-loop). Gate de revisión de stills (Fabián + Claude) + **gate de fuentes** (cada guion con `Fuente:` verificada; cazó 3 mitos virales). Guiño visual del próximo short, fórmula v3, fix de cola del CTA. mortero publicado + piedra_solar lista | ✅ ver [[manos-deformes-sdxl-y-fix-negativo]], [[gate-de-fuentes-antes-de-grabar]], [[revisar-stills-antes-de-armar]] |
+| CASO-015 | **Tanda de 5 encadenada + katana con 3 i2v + revisión de voz**: producción en serie (katana→mercurio→papel→cihuang→arroz). **katana publicada** end-to-end (13 stills ChatGPT→15 escenas, Ken Burns + **i2v en 3 money shots**, música). Costo LTX real **$0.06/s** (no $0.04), saldo ~$0. **`scripts/revisar_voz.py`** caza repeticiones (≥3 palabras) + stutters (palabras estiradas) que la transcripción por segmentos escondía; cortar por silencios acústicos, oído de Fabián = gate final | ✅ ver [[detectar-repeticiones-stutters-voz]], [[confirmar-costo-ltx-antes-de-pagar]] |
 
 **LUMA (H-2 concretado, jul 2026):** `ambiente_clips_ffmpeg.ambiente_bed_clips` = adaptador de
 ambiente por CLIPS de video (hermano de `ambiente_bed`/Ken Burns). Ajusta clips de ~5s al beat de
@@ -256,7 +317,7 @@ python -m pipeline.animado --nombre <n> --audio artifacts/shorts/<n>/voz.wav \
     --evidencia "Guion y voz propios (contenido original)" --estilo historico \
     --modelo medium --semilla N --stub-visual
 # 3) Claude escribe shorts/<n>/prompts.json e inyecta en visual_job.json
-# 4) clips LTX -> shorts/<n>/clips/   (fast por default, $0.04/s; NO usar --pro)
+# 4) clips LTX -> shorts/<n>/clips/   (fast por default, $0.06/s real; NO usar --pro)
 #    FIDELIDAD (2026-07-22): generá TODOS los stills SDXL fieles primero y animá los money
 #    shots con --i2v (LTX solo agrega movimiento sobre un still fiel, NO inventa la escena).
 #    El t2v ciego (--video) es el que produce "clips que no tienen nada que ver" (crítica de
@@ -277,10 +338,14 @@ modo demo/kaggle en la raíz.
 
 ## Entorno y credenciales
 
-- **Windows + PowerShell**; Python 3.11 (`C:\Python311`). `ffmpeg`/`ffprobe` en PATH.
-- `pip install -r requirements.txt` (faster-whisper, kaggle, anthropic).
-- **Kaggle:** `kaggle.json` legacy en `C:\Users\Fabian\.kaggle\kaggle.json` (usuario
-  `fabianskeinerrubio`). Requiere verificación por teléfono. Ver [`docs/KAGGLE.md`](./docs/KAGGLE.md).
+- **WSL (Linux) desde 2026-07-24** (antes Windows + PowerShell). Repo en
+  `/home/faborubio/Workspace/proyectosportafolio/astilla`.
+- **Python: usar el venv del repo** `.venv/bin/python` (3.12, ya tiene faster-whisper/anthropic/
+  kaggle). El `python3` del sistema NO tiene las dependencias. `ffmpeg`/`ffprobe` en `/usr/bin`.
+- Las grabaciones de Fabián siguen cayendo en Windows:
+  `/mnt/c/Users/Fabian/Documents/Grabaciones de sonido/<n>.m4a`.
+- **Kaggle:** `kaggle.json` en `~/.kaggle/` (usuario `fabianskeinerrubio`). Requiere verificación
+  por teléfono. Ver [`docs/KAGGLE.md`](./docs/KAGGLE.md).
 - **Prompts LLM:** definir `ANTHROPIC_API_KEY` (si falta, cae al heurístico). `claude-opus-4-8`.
 - 🔒 Credenciales en `.gitignore` (`kaggle.json`, `access_token`, `.kaggle/`). Nunca al repo/chat.
 
@@ -335,31 +400,31 @@ tramo persiguiendo píxeles. No repetir.
 
 > Pendientes en orden de valor. **(Fabián)** = espera acción o decisión del autor.
 
-1. **(Fabián) SUBIR `piedra_solar`** — está terminada y aprobada (`shorts/piedra_solar/short_musica.mp4`,
-   79s, 100% stills ChatGPT, guiño de katana al cierre). Solo falta que Fabián la revise una vez más y la
-   suba. Título/hashtags/descripción en `guiones.md` #21 (versión viral grabada). Toggle **"contenido
-   alterado o sintético"** (divulgación de IA). ⚠️ Su tease dice "ceniza de volcán" (dato viejo); el short
-   #17 katana ya lo corrigió a óxido — es solo el tease, menor, pero tenerlo presente.
-2. **(Fabián) GRABAR `katana` (#17, primera del banco en cola)** — el tease de piedra_solar apunta a ella.
-   Guion viral + `Fuente:` verificada ya en `guiones.md` #17 (ángulo REAL: pulido *togi* + nugui de óxido
-   de hierro, NO la ceniza-mito). Después el circuito: limpiar voz → transcribir → **kit de prompts ChatGPT**
-   (`prompts_chatgpt.md`, óleo pictórico, guiño al próximo tema = mercurio #22) → Fabián genera en ChatGPT
-   y revisa → Claude mapea + segunda revisión → Ken Burns + armar. **Confirmar costo antes de tocar LTX.**
-3. **(Fabián) Banco 16-33 verificado en cola (~1 mes de contenido)** en `guiones.md`: orden maestro de
-   grabación (katana → mercurio → papel → cihuang → cúpulas → azul maya → espejos → hierro → arroz →
-   cadena americana). **Regla dura antes de grabar cualquiera: su línea `Fuente:` ya está chequeada**
-   (gate de fuentes, [[gate-de-fuentes-antes-de-grabar]]). Chequear saturación del tema en Shorts igual.
-   Grabar 1 cada 1-2 días (constancia = el factor más frágil). **Pausá 1-2s antes de repetir** al grabar.
-4. **(Fabián, cuando quiera) Retomar `manavai` y `pisagua`** — ahora que los stills se hacen en ChatGPT,
-   se pueden re-renderizar bien (era el fix que esperaban). Guion y voz ya están (guiones.md 11, 13).
-5. **Watchear métricas** de los publicados (14 con mortero). Métrica primaria = **% visto/retención**
-   (informe "Rendimiento en las primeras 24h", Modo Avanzado; **>100% = loopea**). El mortero es el
-   primer short con el pipeline de calidad completo (ChatGPT + v3 + guiño) → su retención/suscripción es
-   la señal a mirar. **Leer comentarios** (dieron la señal más accionable). ⚠️ **Regenerar el panel**
-   (`generar_panel.py`) — no se corrió esta sesión; agregar mortero + piedra_solar a `panel_datos.json`.
-6. **(Fabián) Branding de Vestigios:** foto de perfil (emblema de engranaje) + banner. Ocultar (unlisted)
-   los videos viejos de música para limpiar la señal del canal.
-7. **Deuda técnica** — en [`docs/AUDIT.md`](./docs/AUDIT.md): AUD-002 (generalizar el retimeo dentro de
-   `armar_short.py`), + nuevos: formalizar el flujo ChatGPT (kit de prompts → mapeo por contenido) y el
-   fix de cola del CTA (pasos 8) dentro de los scripts en vez de a mano. Distribución multi-plataforma y
-   research dummy-account siguen en [`IDEAS.md`](./IDEAS.md).
+1. **(Fabián) SUBIR `mercurio` (#22)** — `shorts/mercurio_tumba/short_musica.mp4` (81.8s) aprobado
+   el 2026-07-24. Título-pregunta + hashtags en `guiones.md` sección 22. Anotar la URL al publicar.
+2. **ARMAR `papel` (#23)** — audio ya limpio y verificado (`voz.wav` 100.2s; tiene una pausa de ~1.9s
+   en "Mil… años", opcional acortar). Flujo igual que mercurio: `exportar_guion.py` (ojo G-14 si hay
+   A/B en la sección) → `pipeline.animado --stub-visual` (semilla 23) → reescribir el kit
+   `prompts_chatgpt.md` a mapeo por escena → (Fabián) generar imágenes en ChatGPT → doble revisión +
+   mapeo por contenido → Ken Burns en todas ($0) + **1-3 money shots i2v con el reparto de katana
+   (≤16s total = ≤$0.96, respetando la regla de $1)** → `armar_short.py` → música + cola CTA.
+   Guiño de cierre de papel = tease de `cihuang` (#24).
+3. **Luego `cihuang` (#24)** — audio listo (79.6s). Cierra teaseando **arroz** (#25, no cúpulas — ver
+   reorden 2026-07-23), así que su still de guiño = **muralla china + mortero de arroz**.
+4. **(Fabián) Grabar `arroz` (#25)** para cerrar la cadena (cihuang lo teasea). `cupulas_persas` queda para
+   una tanda posterior (su kit ya está hecho). Después: banco 16-33 en `guiones.md` (azul maya → espejos →
+   hierro → arroz → cadena americana). **Fuente: ya chequeada** ([[gate-de-fuentes-antes-de-grabar]]).
+   Grabar 1 cada 1-2 días. **Pausá 1-2s antes de repetir** — y aun así corré `revisar_voz.py` después.
+5. **Watchear métricas** (16 publicados, 17 con mercurio). Primaria = **% visto/retención** ("Rendimiento
+   primeras 24h", Modo Avanzado; **>100% = loopea**). katana es el 1er short con i2v en 3 money shots →
+   mirar su retención vs los de solo Ken Burns. **Leer comentarios.** ⚠️ **Regenerar el panel**
+   (`generar_panel.py`) — pendiente hace 3 sesiones; agregar mortero + piedra_solar + katana + mercurio
+   a `panel_datos.json`.
+6. **(Fabián) Retomar `manavai` y `pisagua`** (en pausa) — ahora con stills ChatGPT se re-renderizan bien.
+7. **(Fabián) Branding de Vestigios:** foto de perfil (engranaje) + banner. Ocultar (unlisted) los videos
+   viejos de música.
+8. **Deuda técnica** — [`docs/AUDIT.md`](./docs/AUDIT.md): AUD-002 (retimeo dentro de `armar_short.py`) +
+   formalizar dentro de scripts: el de-breath (compuerta de huecos), el fix de cola CTA (`--sin-recorte-final`
+   + tail pad), el mapeo ChatGPT por contenido, y el **rescate palíndromo de i2v malo** (ver Estado
+   2026-07-24). `revisar_voz.py` YA está formalizado. Multi-plataforma y research dummy-account en
+   [`IDEAS.md`](./IDEAS.md).

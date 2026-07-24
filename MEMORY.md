@@ -80,3 +80,18 @@ de calidad completo, y `piedra_solar` quedó lista para subir. Tres cambios gran
 **Gotcha caro (G-16, arreglado):** `generar_ltx.py --i2v X` sin `--video` pagaba t2v ciego (~$4
 quemados). Default corregido + regla: confirmar costo antes de gastar LTX (saldo ~$1). El pipeline
 de imagen ya casi no usa LTX (Ken Burns local $0 + i2v solo en money shots puntuales).
+
+## 2026-07-24 — mercurio armado con 3 i2v bajo la regla de $1 + mudanza a WSL
+
+`mercurio_tumba` (#22) quedó **terminado y aprobado** (`short_musica.mp4`, 81.8s): 11 stills ChatGPT
+en Ken Burns + 3 money shots i2v (hook túnel / charco espejo / cielo estrellado) replicando el
+reparto de katana (6+4+6s = $0.96). Guiño de cierre = rollo chino → `papel` (#23).
+
+Tres cosas nuevas de la sesión:
+1. **Regla dura de presupuesto: máx $1 de LTX por short, SIEMPRE** (Fabián recargó $5 → saldo ~$4.04;
+   debe rendir ~4-5 shorts más).
+2. **Entorno: de Windows/PowerShell a WSL (Linux).** Venv del repo (`.venv/bin/python`), key LTX en
+   `~/.ltx/api_key` (expiró justo hoy y se regeneró — un 401 súbito = sospechar key vencida).
+3. **Rescate palíndromo ($0):** el i2v del cielo estrellado se arruinaba a los ~3s (drift al techo →
+   bokeh). Se recortó el tramo limpio y se armó ida-vuelta con ffmpeg (trim+reverse+concat) en vez de
+   regenerar. En escenas de titileo/llama la reversa es invisible. Candidato a formalizar en script.
